@@ -1,0 +1,21 @@
+DELIMITER $
+
+DROP FUNCTION IF EXISTS edad$
+
+CREATE FUNCTION edad(date1 DATE, date2 DATE) RETURNS INT
+DETERMINISTIC
+
+BEGIN
+
+	DECLARE age INT;
+
+	IF date2 IS NULL THEN
+	   SET date2 = CURDATE();
+	END IF;
+	
+	SET age = (YEAR(date2) - YEAR(date1)) - IF(RIGHT(date2, 5) < RIGHT(date1, 5), 1, 0);
+
+	RETURN age;
+END$
+
+DELIMITER ;
