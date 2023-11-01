@@ -28,7 +28,7 @@ SELECT colonia FROM pr1_colonias LEFT JOIN pr1_siniestros USING(idColonia) GROUP
 
 -- PERIODO DEL DÍA DONDE MÁS SINIESTROS OCURREN --
 
-SELECT HOUR(hora) AS hora FROM pr1_siniestros GROUP BY hora HAVING COUNT(idSiniestro) = (SELECT COUNT(idSiniestro) FROM pr1_siniestros GROUP BY hora ORDER BY COUNT(idSiniestro) DESC LIMIT 1);
+SELECT periodoDia(hora) AS periodo FROM pr1_siniestros GROUP BY periodo HAVING COUNT(idSiniestro) = (SELECT COUNT(idSiniestro) FROM pr1_siniestros GROUP BY periodoDia(hora) ORDER BY COUNT(idSiniestro) DESC LIMIT 1);
 
 -- CANTIDAD DE SINIESTROS QUE OCURREN EN CIERTO PERIODO DE TIEMPO --
 
@@ -45,3 +45,36 @@ SELECT CONCAT(nombre, ' ', ap_paterno, ' ', ap_materno) AS nombre, colonia FROM 
 -- LISTA DE VEHÍCULOS QUE MANEJÓ UN AJUSTADOR EN UN TIEMPO EN ESPECÍFICO --
 
 SELECT modelo FROM pr1_ajustadores LEFT JOIN pr1_A_V USING(idAjustador) LEFT JOIN pr1_vehiculos USING(idVehiculo) WHERE nombre LIKE 'Leonardo' AND ap_paterno = 'Park' AND ap_materno = 'Morales' AND fecha = '2023-09-15';
+
+
+
+-- FUNCIÓN PARA MOSTRAR PERIODO DEL DÍA --
+
+
+DROP FUNCTION IF EXISTS periodoDia;
+
+DELIMITER $
+
+CREATE FUNCTION periodoDia(tiempo TIME) RETURNS VARCHAR(15)
+DETERMINISTIC
+
+BEGIN
+DECLARE periodo VARCHAR(15);
+DECLARE laHora INT;
+	
+SET laHora = HOUR(tiempo);
+
+IF laHora >= 6 AND laHora <= 11 THEN
+SET periodo = 'MAÑANA';
+ELSEIF laHora >= 12 AND laHora <= 18 THEN
+SET periodo = 'TARDE';
+ELSEIF laHora >= 19 AND laHora <= 23 THEN
+SET periodo = 'NOCHE';
+ELSE
+SET periodo = 'MADRUGADA';
+END IF;
+RETURN periodo;
+END$
+
+DELIMITER ;
+
