@@ -25,7 +25,7 @@
  *
  * @date Fecha de elaboración del programa: 2 de Noviembre del 2023
  *
- * @date Última Actualización: 2 de Noviembre del 2023
+ * @date Última Actualización: 6 de Noviembre del 2023
  *
  */
 
