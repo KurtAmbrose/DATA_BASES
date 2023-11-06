@@ -22,6 +22,8 @@ BEGIN
     WHILE model != NULL DO 
         FETCH curs INTO model;
     END WHILE; 
+    
+    CLOSE curs;
 
 END$
 

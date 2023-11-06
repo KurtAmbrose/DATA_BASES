@@ -57,7 +57,6 @@ int main (int argc, char **argv)
     }
 
     // Despliega el resultado del query
-    system("clear");
     
     while( (row = mysql_fetch_row(res)) ){
         i = 0;
