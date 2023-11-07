@@ -11,24 +11,100 @@
 void ingresarActividadReciente(char buffer[], MYSQL mysql)
 {
     actividad nuevoRegistro;
-    int ajustador, carro, validacion;
+    int validacion;
     MYSQL_RES *res;
     MYSQL_ROW row;
 
-#ifdef DDEBUG
-    while(validacion != 0){
+    validacion = 0;
 
-        
+    while(validacion == 0)
+    {
+        mostrarAjustadores(buffer, mysql);
+        printf("->Ingresa el ID del ajustador: ");
+        scanf(" %d", &nuevoRegistro.idAjustador);
+
+        // Ejecuta el query
+        sprintf(buffer, "SELECT idAjustador FROM pr1_ajustadores WHERE idAjustador = %d;", nuevoRegistro.idAjustador);
         if( mysql_query(&mysql, buffer) ){
             fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
             exit(1);
         }
-        printf("Ingresa el ID del ajustador: ");
-        scanf(" %s", &nuevoRegistro.idAjustador);
+        
+        // Obtiene el query
+        if( !(res = mysql_store_result(&mysql)) ){
+            fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+            exit(1);
+        }
 
+        // Despliega el resultado del ID
+        if ((row = mysql_fetch_row(res))) {
+            validacion = atoi(row[0]);
+        }
+        
+        if(validacion == 0)
+        {
+            system("clear");
+            printf("El ajustador no está registrado.\n\n");
+        }
     }
-#endif
-    
+
+    system("clear");
+    validacion = 0;
+
+    while(validacion == 0)
+    {
+        mostrarVehiculos(buffer, mysql);
+        printf("->Ingresa el ID del vehículo: ");
+        scanf(" %d", &nuevoRegistro.idVehiculo);
+
+         // Ejecuta el query
+        sprintf(buffer, "SELECT idVehiculo FROM pr1_vehiculos WHERE idVehiculo = %d;", nuevoRegistro.idVehiculo);
+        if( mysql_query(&mysql, buffer) ){
+            fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+            exit(1);
+        }
+        
+        // Obtiene el query
+        if( !(res = mysql_store_result(&mysql)) ){
+            fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+            exit(1);
+        }
+
+        // Despliega el resultado del ID
+        if ((row = mysql_fetch_row(res))) {
+            validacion = atoi(row[0]);
+        }
+        
+        if(validacion == 0)
+        {
+            system("clear");
+            printf("El vehículo no está registrado.\n\n");
+        }
+    }
+
+    system("clear");
+    validacion = 0;
+
+    printf("->Ingresa la fecha con el formato 'AAAA-MM-DD' (incluyendo '-'): ");
+    scanf(" %[^\n]", nuevoRegistro.fecha);
+    printf("->Ingresa la hora de inicio con el formato 'HH:MM:SS' (incluyendo los ':'): ");
+    scanf(" %[^\n]", nuevoRegistro.horaInicio);
+    printf("->Ingresa la hora en la que acabó la jornada con el formato 'HH:MM:SS' (incluyendo los ':'): ");
+    scanf(" %[^\n]", nuevoRegistro.horaFin);
+    printf("->Ingresa el kilometraje: ");
+    scanf(" %d", &nuevoRegistro.km);
+    system("clear");
+
+    // Ejecuta el query
+    sprintf(buffer, "INSERT INTO pr1_A_V(hora_inicio, hora_fin, fecha, idAjustador, idVehiculo, kilometraje) VALUES ('%s', '%s', '%s', %d, %d, %d);", nuevoRegistro.horaInicio, nuevoRegistro.horaFin, nuevoRegistro.fecha, nuevoRegistro.idAjustador, nuevoRegistro.idVehiculo, nuevoRegistro.km);
+    if( mysql_query(&mysql, buffer) ){
+        fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+        exit(1);
+    }
+    else{
+        printf("¡¡¡Datos guardados con éxito!!!\n\n");
+    }
+
 }
 
 /**

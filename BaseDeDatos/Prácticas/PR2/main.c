@@ -139,3 +139,102 @@ int main(int argc, char *argv[])
   
   return 0;
 }
+
+/**
+ * @brief Procedimiento que despliega los datos de la tabla de los ajustadores
+ * @param String: buffer[]
+ * @param Struct: mysql
+ * @author Diego Bravo Pérez y Javier Lachica y Sánchez
+ * @date 7/11/2023
+*/
+
+void mostrarAjustadores(char buffer[], MYSQL mysql)
+{
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    int i;
+
+    // Ejecuta el query
+    sprintf(buffer, "SELECT idAjustador, CONCAT(nombre, ' ', ap_paterno, ' ', ap_materno) AS nombre FROM pr1_ajustadores;");
+    if( mysql_query(&mysql,buffer) ){
+        fprintf(stderr,"Error processing query \"%s\" Error: %s\n",buffer,mysql_error(&mysql));
+        exit(1);
+    }
+
+    // Obtiene el query
+    if( !(res = mysql_store_result(&mysql)) ){
+        fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+        exit(1);
+    }
+
+    // Despliega el resultado del query
+    
+    while( (row = mysql_fetch_row(res)) )
+    {
+        i = 0;
+
+        for( i=0 ; i < mysql_num_fields(res); i++ )
+        {
+            if(row[i] != NULL)
+            {
+              printf("|%s\n",row[i]);
+            }
+            else
+            {
+              printf(" \n");
+            }
+        }
+        fputc('\n',stdout);
+    }
+    mysql_free_result(res);
+}
+
+/**
+ * @brief Procedimiento que muestra la tabla de los vehículos registrados
+ * @param String: buffer[]
+ * @param Struct: mysql
+ * @author Diego Bravo Pérez y Javier Lachica y Sánchez
+ * @date 7/11/2023
+*/
+
+void mostrarVehiculos(char buffer[], MYSQL mysql)
+{
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    int i;
+
+     // Ejecuta el query
+    sprintf(buffer, "SELECT idVehiculo, modelo FROM pr1_vehiculos;");
+    if( mysql_query(&mysql,buffer) ){
+        fprintf(stderr,"Error processing query \"%s\" Error: %s\n",buffer,mysql_error(&mysql));
+        exit(1);
+    }
+
+    // Obtiene el query
+    if( !(res = mysql_store_result(&mysql)) ){
+        fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+        exit(1);
+    }
+
+    // Despliega el resultado del query
+    
+    while( (row = mysql_fetch_row(res)) )
+    {
+        i = 0;
+
+        for( i=0 ; i < mysql_num_fields(res); i++ )
+        {
+            if(row[i] != NULL)
+            {
+              printf("|%s\n",row[i]);
+            }
+            else
+            {
+              printf(" \n");
+            }
+        }
+        fputc('\n',stdout);
+    }
+    mysql_free_result(res);
+
+}

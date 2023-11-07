@@ -11,8 +11,8 @@
 #define DATOS 50
 #define PWD 12
 #define CELL 30
-#define TIEMPO 8
-#define FECHA 10
+#define TIEMPO 9
+#define FECHA 11
 
 /**
  * @brief Declaración de estructuras que se utilizarán en el programa
@@ -55,3 +55,5 @@ void ingresarOperadorNuevo(char buffer[], MYSQL mysql);
 void ingresarVehiculoNuevo(char buffer[], MYSQL mysql);
 void ingresarColoniaNueva(char buffer[], MYSQL mysql);
 void ingresarActividadReciente(char buffer[], MYSQL mysql);
+void mostrarAjustadores(char buffer[], MYSQL mysql);
+void mostrarVehiculos(char buffer[], MYSQL mysql);
