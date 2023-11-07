@@ -5,7 +5,9 @@
  *         incluye el llenado de la información para poder desplegarla. El programa se divide en los siguientes menús: 
  *             a) Ingresar Datos: La opción de ingresar los datos de los usuarios, empleados (ajustadores y operadores), vehículos, siniestros
  *                                ubicaciones y la actividad de los ajustadores durante la jornada. 
- *             b) Desplegar Datos: Despliega los datos mediante un menú de opciones que el usuario que maneja el programa puede consultar. Los datos solicitados son los siguientes:
+ *             b) Modificar Datos: La opción de modificar los datos de los usuarios, empleados (ajustadores y operadores), vehículos, siniestros
+ *                                 ubicaciones y la actividad de los ajustadores durante la jornada.
+ *             c) Desplegar Datos: Despliega los datos mediante un menú de opciones que el usuario que maneja el programa puede consultar. Los datos solicitados son los siguientes:
  *                 1) Usuarios que menos usan el sistema.
  *                 2) Ajustadores que más siniestros atienden.
  *                 3) Ajustadores que menos siniestros han atendido.
@@ -18,14 +20,14 @@
  *                 10) Nombre del ajustador que manejó un vehículo en un periodo de tiempo determinado.
  *                 11) La última posición de un ajustador en particular
  *                 12) Lista de todos los vehículos que manejó un ajustador en un periodo de tiempo determinado
- *             c) Salir: Esta opción es para salir del programa.
+ *             d) Salir: Esta opción es para salir del programa.
  *
  *
  * @author Programa elaborado por: Diego Bravo Pérez y Javier Lachica y Sánchez  
  *
  * @date Fecha de elaboración del programa: 2 de Noviembre del 2023
  *
- * @date Última Actualización: 6 de Noviembre del 2023
+ * @date Última Actualización: 7 de Noviembre del 2023
  *
  */
 
@@ -81,7 +83,7 @@ int main(int argc, char *argv[])
       while(bandera == 0)
       {
         printf("---- Práctica 2: Aseguradora ------\n\n");
-        printf("\t-> a) Insertar datos nuevos\n\t-> b) Consultar información\n\t-> c) Salir\n\n");
+        printf("\t-> a) Insertar datos nuevos\n\t-> b) Modificar datos ingresados\n\t-> c) Consultar Información\n\t-> d) Salir\n\n");
         printf("Seleccione una opción: ");
         scanf(" %c", &opcion);
 
@@ -107,10 +109,20 @@ int main(int argc, char *argv[])
 
           case 'c':
           system("clear");
-          bandera = 1;
+          
           break;
 
           case 'C':
+          system("clear");
+          
+          break;
+
+          case 'D':
+          system("clear");
+          bandera = 1;
+          break;
+
+          case 'd':
           system("clear");
           bandera = 1;
           break;

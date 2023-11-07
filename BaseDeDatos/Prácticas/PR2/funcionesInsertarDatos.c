@@ -45,27 +45,73 @@ void ingresarVehiculoNuevo(char buffer[], MYSQL mysql)
 {
     vehiculo automovil;
     char ubicacion_actual[DATOS];
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    int validacion;
 
     system("clear");
     printf("->Ingresa el modelo del vehículo: ");
     scanf(" %[^\n]", automovil.modelo);
-
-#ifdef DDEBUG
-    while(res != NULL){
-        printf("->Ingresa la colonia en la que está actualmente: ");
+    while(validacion != 0){
+        printf("\n->Ingresa la colonia en la que está actualmente: ");
         scanf(" %[^\n]", ubicacion_actual);
 
         //Verifica si la colonia está registrada
-        sprintf(buffer, "SELECT idColonia FROM pr1_colonias WHERE colonia = '%s';", ubicacion_actual);
+        sprintf(buffer, "CALL validarColonia('%s', @val);", ubicacion_actual);
         if( mysql_query(&mysql, buffer) ){
             fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
             exit(1);
         }
 
-    }
-#endif
+        sprintf(buffer, "SELECT @val;");
+        if( mysql_query(&mysql, buffer) ){
+            fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+            exit(1);
+        }
 
+        //Captura el resultado del Query
+        if( !(res = mysql_store_result(&mysql)) ){
+            fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+            exit(1);
+        }
+
+        if ((row = mysql_fetch_row(res))) {
+            validacion = atoi(row[0]);
+        }
+
+        if(validacion == 1){
+            system("clear");
+            printf("La colonia no está registrada.\n");
+        }
+    }
     system("clear");
+
+    //Busca el id de la colonia
+    sprintf(buffer, "SELECT idColonia FROM pr1_colonias WHERE colonia = '%s';", ubicacion_actual);
+    if( mysql_query(&mysql, buffer) ){
+        fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+        exit(1);
+    }
+    
+    //Captura el resultado del Query
+    if( !(res = mysql_store_result(&mysql)) ){
+        fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+        exit(1);
+    }
+
+    if ((row = mysql_fetch_row(res))) {
+        automovil.idColonia = atoi(row[0]);
+    }
+
+    // Ejecuta el query
+    sprintf(buffer, "INSERT INTO pr1_vehiculos(modelo, idColonia) VALUES ('%s', %d);", automovil.modelo, automovil.idColonia);
+    if( mysql_query(&mysql, buffer) ){
+        fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+        exit(1);
+    }
+    else{
+        printf("¡¡¡Datos guardados con éxito!!!\n\n");
+    }
 
 }
 
