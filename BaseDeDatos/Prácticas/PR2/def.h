@@ -11,6 +11,8 @@
 #define DATOS 50
 #define PWD 12
 #define CELL 30
+#define TIEMPO 8
+#define FECHA 10
 
 /**
  * @brief Declaración de estructuras que se utilizarán en el programa
@@ -33,6 +35,15 @@ typedef struct vehiculo
     unsigned int idColonia;
 }vehiculo;
 
+typedef struct actividad
+{
+    char horaInicio[TIEMPO], horaFin[TIEMPO];
+    char fecha[FECHA];
+    int idAjustador;
+    int idVehiculo;
+    int km;
+}actividad;
+
 /**
  * @brief Declaración de funciones que se usarán en el programa
 */
@@ -43,3 +54,4 @@ void ingresarAjustadorNuevo(char buffer[], MYSQL mysql);
 void ingresarOperadorNuevo(char buffer[], MYSQL mysql);
 void ingresarVehiculoNuevo(char buffer[], MYSQL mysql);
 void ingresarColoniaNueva(char buffer[], MYSQL mysql);
+void ingresarActividadReciente(char buffer[], MYSQL mysql);

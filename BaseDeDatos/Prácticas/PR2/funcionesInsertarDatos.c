@@ -1,6 +1,37 @@
 #include "def.h"
 
 /**
+ * @brief Procedimiento que registra una actividad nueva de uno de los ajustadores
+ * @param String: buffer[]
+ * @param Struct: mysql
+ * @author Diego Bravo Pérez y Javier Lachica y Sánchez
+ * @date 7/11/2023
+*/
+
+void ingresarActividadReciente(char buffer[], MYSQL mysql)
+{
+    actividad nuevoRegistro;
+    int ajustador, carro, validacion;
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+
+#ifdef DDEBUG
+    while(validacion != 0){
+
+        
+        if( mysql_query(&mysql, buffer) ){
+            fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+            exit(1);
+        }
+        printf("Ingresa el ID del ajustador: ");
+        scanf(" %s", &nuevoRegistro.idAjustador);
+
+    }
+#endif
+    
+}
+
+/**
  * @brief Procedimiento que ingresa una colonia nueva
  * @param String: buffer[]
  * @param Struct: mysql
@@ -38,7 +69,7 @@ void ingresarColoniaNueva(char buffer[], MYSQL mysql)
  * @param String: buffer[]
  * @param Struct: mysql
  * @author Diego Bravo Pérez y Javier Lachica y Sánchez
- * @date 6/11/2023
+ * @date 7/11/2023
 */
 
 void ingresarVehiculoNuevo(char buffer[], MYSQL mysql)
@@ -280,6 +311,8 @@ extern void menuInsertarDatos(MYSQL mysql)
             break;
 
             case 7:
+            system("clear");
+            ingresarActividadReciente(buffer, mysql);
             break;
 
             case 8:
