@@ -1,6 +1,136 @@
 #include "def.h"
 
 /**
+ * @brief Procedimiento que despliega la hornada de un ajustador.
+ * @param String: buffer[]
+ * @param Struct: mysql
+ * @param Unsigned_Integer: idAjustador
+ * @param String: hora[]
+ * @param Pointer: *val
+ * @author Diego Bravo Pérez y Javier Lachica y Sánchez
+ * @date 8/11/2023
+*/
+
+void mostrarJornada(char buffer[], MYSQL mysql, unsigned int idAjustador, char fecha[], unsigned int *val)
+{
+    MYSQL_RES *res;
+    MYSQL_ROW row, *prueba;
+    unsigned int i;
+
+     // Ejecuta el query
+    sprintf(buffer, "SELECT hora_inicio, hora_fin FROM pr1_A_V WHERE idAjustador = %d AND fecha = '%s';", idAjustador, fecha);
+    if( mysql_query(&mysql,buffer) ){
+        fprintf(stderr,"Error processing query \"%s\" Error: %s\n",buffer,mysql_error(&mysql));
+        exit(1);
+    }
+
+    // Obtiene el query
+    if( !(res = mysql_store_result(&mysql)) ){
+        fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+        exit(1);
+    }
+
+    row = mysql_fetch_row(res);
+
+    // Despliega el resultado del query
+    printf("---JORNADA---\n\n");
+    if(row != NULL)
+    {
+        while(i < mysql_num_fields(res))
+        {
+            i = 0;
+
+            for( i=0 ; i < mysql_num_fields(res); i++ )
+            {
+                if(row[i] != NULL)
+                {
+                printf("|%s\n",row[i]);
+                }
+                else
+                {
+                printf(" \n");
+                }
+            }
+            fputc('\n',stdout);
+        }
+        *val = 1;
+    }
+    else
+    {
+        *val = 0;
+    }
+
+    mysql_free_result(res);
+}
+
+/**
+ * @brief Procedimiento que ingresa una un nuev siniestro a la base de datos
+ * @param String: buffer[]
+ * @param Struct: mysql
+ * @author Diego Bravo Pérez y Javier Lachica y Sánchez
+ * @date 8/11/2023
+*/
+
+void ingresarSiniestroNuevo(char buffer[], MYSQL mysql)
+{
+    siniestro registro;
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    unsigned int validacion, bandera;
+    validacion = 0;
+    bandera = 0;
+
+    while(validacion == 0)
+    {
+        printf("->Ingresa la fecha con el formato 'AAAA-MM-DD' (incluyendo '-'): ");
+        scanf(" %[^\n]", registro.fecha);
+        mostrarAjustadores(buffer, mysql);
+        printf("->Ingresa el ID del ajustador: ");
+        scanf(" %d", &registro.idAjustador);
+
+        // Ejecuta el query
+        sprintf(buffer, "SELECT idAjustador FROM pr1_ajustadores WHERE idAjustador = %d;", registro.idAjustador);
+        if( mysql_query(&mysql, buffer) ){
+            fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+            exit(1);
+        }
+        
+        // Obtiene el query
+        if( !(res = mysql_store_result(&mysql)) ){
+            fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+            exit(1);
+        }
+
+        // Despliega el resultado del ID
+        if ((row = mysql_fetch_row(res))) {
+            validacion = atoi(row[0]);
+        }
+        
+        if(validacion == 0)
+        {
+            system("clear");
+            printf("El ajustador no está registrado.\n\n");
+        }
+
+        // Despliega la jornada del ajustador según la hora del siniestro para confirmar
+        else
+        {
+           system("clear");
+           mostrarJornada(buffer, mysql, registro.idAjustador, registro.fecha, &bandera);
+           if(bandera == 0)
+            {
+                printf("La fecha o el ajustador no coincide con ninguno de los registros de la jornada.\n\nPresione \"enter para regresar\" -> ");
+                getchar();
+                getchar();
+                system("clear");
+                validacion = 0;
+            }
+        }
+
+    }
+}
+
+/**
  * @brief Procedimiento que registra una actividad nueva de uno de los ajustadores
  * @param String: buffer[]
  * @param Struct: mysql
@@ -11,7 +141,7 @@
 void ingresarActividadReciente(char buffer[], MYSQL mysql)
 {
     actividad nuevoRegistro;
-    int validacion;
+    unsigned int validacion;
     MYSQL_RES *res;
     MYSQL_ROW row;
 
@@ -154,7 +284,7 @@ void ingresarVehiculoNuevo(char buffer[], MYSQL mysql)
     char ubicacion_actual[DATOS];
     MYSQL_RES *res;
     MYSQL_ROW row;
-    int validacion;
+    unsigned int validacion;
 
     system("clear");
     printf("->Ingresa el modelo del vehículo: ");
@@ -374,6 +504,8 @@ extern void menuInsertarDatos(MYSQL mysql)
             break;
 
             case 4:
+            system("clear");
+            ingresarSiniestroNuevo(buffer, mysql);
             break;
 
             case 5:

@@ -39,21 +39,29 @@ typedef struct actividad
 {
     char horaInicio[TIEMPO], horaFin[TIEMPO];
     char fecha[FECHA];
-    int idAjustador;
-    int idVehiculo;
-    int km;
+    unsigned int idAjustador;
+    unsigned int idVehiculo;
+    unsigned int km;
 }actividad;
+
+typedef struct siniestro
+{
+    char fecha[FECHA], hora[TIEMPO];
+    unsigned int idAjustador, idUsuario, idColonia;
+}siniestro;
 
 /**
  * @brief Declaración de funciones que se usarán en el programa
 */
 
-void menuInsertarDatos(MYSQL mysql);
+extern void menuInsertarDatos(MYSQL mysql);
 void ingresarUsuarioNuevo(char buffer[], MYSQL mysql);
 void ingresarAjustadorNuevo(char buffer[], MYSQL mysql);
 void ingresarOperadorNuevo(char buffer[], MYSQL mysql);
 void ingresarVehiculoNuevo(char buffer[], MYSQL mysql);
 void ingresarColoniaNueva(char buffer[], MYSQL mysql);
 void ingresarActividadReciente(char buffer[], MYSQL mysql);
-void mostrarAjustadores(char buffer[], MYSQL mysql);
-void mostrarVehiculos(char buffer[], MYSQL mysql);
+extern void mostrarAjustadores(char buffer[], MYSQL mysql);
+extern void mostrarVehiculos(char buffer[], MYSQL mysql);
+void ingresarSiniestroNuevo(char buffer[], MYSQL mysql);
+void mostrarJornada(char buffer[], MYSQL mysql, unsigned int idAjustador, char fecha[], unsigned int *val);

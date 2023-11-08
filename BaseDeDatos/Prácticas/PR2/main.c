@@ -27,7 +27,7 @@
  *
  * @date Fecha de elaboración del programa: 2 de Noviembre del 2023
  *
- * @date Última Actualización: 7 de Noviembre del 2023
+ * @date Última Actualización: 8 de Noviembre del 2023
  *
  */
 
@@ -148,11 +148,11 @@ int main(int argc, char *argv[])
  * @date 7/11/2023
 */
 
-void mostrarAjustadores(char buffer[], MYSQL mysql)
+extern void mostrarAjustadores(char buffer[], MYSQL mysql)
 {
     MYSQL_RES *res;
     MYSQL_ROW row;
-    int i;
+    unsigned int i;
 
     // Ejecuta el query
     sprintf(buffer, "SELECT idAjustador, CONCAT(nombre, ' ', ap_paterno, ' ', ap_materno) AS nombre FROM pr1_ajustadores;");
@@ -168,7 +168,7 @@ void mostrarAjustadores(char buffer[], MYSQL mysql)
     }
 
     // Despliega el resultado del query
-    
+    printf("---AJUSTADORES REGISTRADOS----\n\n");
     while( (row = mysql_fetch_row(res)) )
     {
         i = 0;
@@ -197,13 +197,13 @@ void mostrarAjustadores(char buffer[], MYSQL mysql)
  * @date 7/11/2023
 */
 
-void mostrarVehiculos(char buffer[], MYSQL mysql)
+extern void mostrarVehiculos(char buffer[], MYSQL mysql)
 {
     MYSQL_RES *res;
     MYSQL_ROW row;
-    int i;
+    unsigned int i;
 
-     // Ejecuta el query
+    // Ejecuta el query
     sprintf(buffer, "SELECT idVehiculo, modelo FROM pr1_vehiculos;");
     if( mysql_query(&mysql,buffer) ){
         fprintf(stderr,"Error processing query \"%s\" Error: %s\n",buffer,mysql_error(&mysql));
@@ -217,7 +217,7 @@ void mostrarVehiculos(char buffer[], MYSQL mysql)
     }
 
     // Despliega el resultado del query
-    
+    printf("---VEHÍCULOS REGISTRADOS----\n\n");
     while( (row = mysql_fetch_row(res)) )
     {
         i = 0;
