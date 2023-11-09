@@ -1,6 +1,108 @@
 #include "def.h"
 
 /**
+ * @brief Procedimiento que registra las llamadas recibidas por los operadores para atender los siniestros en la base de datos
+ * @param String: buffer[]
+ * @param Struct: mysql
+ * @author Diego Bravo Pérez y Javier Lachica y Sánchez
+ * @date 9/11/2023
+*/
+
+void registrarLlamada(char buffer[], MYSQL mysql)
+{
+    siniestro registro;
+    unsigned int validacion;
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    char bandera;
+    
+    do
+    {
+        validacion = 0;
+        while(validacion == 0)
+        {
+            mostrarOperadores(buffer, mysql);
+            printf("->Ingresa el ID del operador: ");
+            scanf(" %d", &registro.idOperador);
+
+            // Ejecuta el query
+            sprintf(buffer, "SELECT idOperador FROM pr1_operadores WHERE idOperador = %d;", registro.idOperador);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            
+            // Obtiene el query
+            if( !(res = mysql_store_result(&mysql)) ){
+                fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+                exit(1);
+            }
+
+            // Despliega el resultado del ID
+            if ((row = mysql_fetch_row(res))) {
+                validacion = atoi(row[0]);
+            }
+            
+            if(validacion == 0)
+            {
+                system("clear");
+                printf("El operador no está registrado.\n\n");
+            }
+        }
+
+        system("clear");
+        validacion = 0;
+
+        while(validacion == 0)
+        {
+            mostrarSiniestros(buffer, mysql);
+            printf("\nIngresa el ID del siniestro: ");
+            scanf(" %d", &registro.idSiniestro);
+
+            // Ejecuta el query
+            sprintf(buffer, "SELECT idSiniestro FROM pr1_siniestros WHERE idSiniestro = %d;", registro.idSiniestro);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            
+            // Obtiene el query
+            if( !(res = mysql_store_result(&mysql)) ){
+                fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+                exit(1);
+            }
+
+            // Despliega el resultado del ID
+            if ((row = mysql_fetch_row(res))) {
+                validacion = atoi(row[0]);
+            }
+            
+            if(validacion == 0)
+            {
+                system("clear");
+                printf("Siniestro no está registrado.\n\n");
+            }
+        }
+
+        system("clear");
+
+        // Ejecuta el query
+        sprintf(buffer, "INSERT INTO pr1_O_S(idSiniestro, idOperador) VALUES (%d, %d);", registro.idSiniestro, registro.idOperador);
+        if( mysql_query(&mysql, buffer) ){
+            fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+            exit(1);
+        }
+        else{
+            printf("¡¡¡Datos guardados con éxito!!!\n\n");
+            printf("->¿Desea registrar otra llamada? (S)í \t(N)o: ");
+            scanf(" %c", &bandera);
+        }
+    }while(bandera == 'S' || bandera == 's');
+    
+    system("clear");
+}
+
+/**
  * @brief Procedimiento que despliega la hornada de un ajustador.
  * @param String: buffer[]
  * @param Struct: mysql
@@ -64,7 +166,7 @@ void mostrarJornada(char buffer[], MYSQL mysql, unsigned int idAjustador, char f
 }
 
 /**
- * @brief Procedimiento que ingresa una un nuev siniestro a la base de datos
+ * @brief Procedimiento que ingresa una un nuevo siniestro a la base de datos
  * @param String: buffer[]
  * @param Struct: mysql
  * @author Diego Bravo Pérez y Javier Lachica y Sánchez
@@ -634,7 +736,7 @@ extern void menuInsertarDatos(MYSQL mysql)
     while(bandera == 0)
     {
         printf("---Insertar datos nuevos---\n\n");
-        printf("\t-> 1) Usuarios\n\t-> 2) Ajustadores\n\t-> 3) Operadores\n\t-> 4) Siniestros\n\t-> 5) Vehículos\n\t-> 6) Colonias\n\t-> 7) Actividad de los Ajustadores\n\t-> 8) Regresar\n\n");
+        printf("\t-> 1) Usuarios\n\t-> 2) Ajustadores\n\t-> 3) Operadores\n\t-> 4) Siniestros\n\t-> 5) Llamadas\n\t-> 6) Vehículos\n\t-> 7) Colonias\n\t-> 8) Actividad de los Ajustadores\n\t-> 9) Regresar\n\n");
         printf("Ingresa una opción que quieras realizar: ");
         scanf(" %d", &opcion);
         switch(opcion)
@@ -661,20 +763,25 @@ extern void menuInsertarDatos(MYSQL mysql)
 
             case 5:
             system("clear");
-            ingresarVehiculoNuevo(buffer, mysql);
+            registrarLlamada(buffer, mysql);
             break;
 
             case 6:
             system("clear");
-            ingresarColoniaNueva(buffer, mysql);
+            ingresarVehiculoNuevo(buffer, mysql);
             break;
 
             case 7:
             system("clear");
-            ingresarActividadReciente(buffer, mysql);
+            ingresarColoniaNueva(buffer, mysql);
             break;
 
             case 8:
+            system("clear");
+            ingresarActividadReciente(buffer, mysql);
+            break;
+
+            case 9:
             bandera = 1;
             system("clear");
             break;

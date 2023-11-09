@@ -1,4 +1,9 @@
+/**
+ * @brief Declaración de bibliotecas que se van a usar 
+*/
+
 #include <stdio.h>
+#include <stdio_ext.h>
 #include <string.h>
 #include <stdlib.h>
 #include <mysql/mysql.h>
@@ -47,7 +52,7 @@ typedef struct actividad
 typedef struct siniestro
 {
     char fecha[FECHA], hora[TIEMPO];
-    unsigned int idAjustador, idUsuario, idColonia;
+    unsigned int idAjustador, idUsuario, idColonia, idSiniestro, idOperador;
 }siniestro;
 
 /**
@@ -67,3 +72,6 @@ void ingresarSiniestroNuevo(char buffer[], MYSQL mysql);
 void mostrarJornada(char buffer[], MYSQL mysql, unsigned int idAjustador, char fecha[], unsigned int *val);
 extern void mostrarUsuarios(char buffer[], MYSQL mysql);
 extern void mostrarColonias(char buffer[], MYSQL mysql);
+void registrarLlamada(char buffer[], MYSQL mysql);
+extern void mostrarOperadores(char buffer[], MYSQL mysql);
+extern void mostrarSiniestros(char buffer[], MYSQL mysql);
