@@ -79,7 +79,6 @@ void ingresarSiniestroNuevo(char buffer[], MYSQL mysql)
     unsigned int validacion, bandera;
     char ubi[DATOS];
     validacion = 0;
-    bandera = 0;
 
     while(validacion == 0)
     {
@@ -116,6 +115,7 @@ void ingresarSiniestroNuevo(char buffer[], MYSQL mysql)
         // Despliega la jornada del ajustador según la hora del siniestro para confirmar
         else
         {
+           bandera = 0;
            system("clear");
            mostrarJornada(buffer, mysql, registro.idAjustador, registro.fecha, &bandera);
 
@@ -130,6 +130,7 @@ void ingresarSiniestroNuevo(char buffer[], MYSQL mysql)
 
             else
             {
+                validacion = 1;
                 while(validacion == 1)
                 {
                     printf("\n->Ingresa la hora en la que ocurrió el siniestro con el formato 'HH:MM:SS' (incluyendo los ':'): ");
@@ -263,6 +264,17 @@ void ingresarSiniestroNuevo(char buffer[], MYSQL mysql)
         registro.idColonia = atoi(row[0]);
     }
     mysql_free_result(res);
+    system("clear");
+
+    // Ejecuta el query
+    sprintf(buffer, "INSERT INTO pr1_siniestros(fecha, hora, idAjustador, idUsuario, idColonia) VALUES ('%s', '%s', %d, %d, %d);", registro.fecha, registro.hora, registro.idAjustador, registro.idUsuario, registro.idColonia);
+    if( mysql_query(&mysql, buffer) ){
+        fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+        exit(1);
+    }
+    else{
+        printf("¡¡¡Datos guardados con éxito!!!\n\n");
+    }
 }
 
 /**
