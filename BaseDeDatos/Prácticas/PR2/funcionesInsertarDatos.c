@@ -77,6 +77,7 @@ void ingresarSiniestroNuevo(char buffer[], MYSQL mysql)
     MYSQL_RES *res;
     MYSQL_ROW row;
     unsigned int validacion, bandera;
+    char ubi[DATOS];
     validacion = 0;
     bandera = 0;
 
@@ -117,6 +118,7 @@ void ingresarSiniestroNuevo(char buffer[], MYSQL mysql)
         {
            system("clear");
            mostrarJornada(buffer, mysql, registro.idAjustador, registro.fecha, &bandera);
+
            if(bandera == 0)
             {
                 printf("La fecha o el ajustador no coincide con ninguno de los registros de la jornada.\n\nPresione \"enter para regresar\" -> ");
@@ -125,9 +127,143 @@ void ingresarSiniestroNuevo(char buffer[], MYSQL mysql)
                 system("clear");
                 validacion = 0;
             }
+
+            else
+            {
+                while(validacion == 1)
+                {
+                    printf("\n->Ingresa la hora en la que ocurrió el siniestro con el formato 'HH:MM:SS' (incluyendo los ':'): ");
+                    scanf(" %[^\n]", registro.hora);
+
+                    sprintf(buffer, "CALL validarHora('%s', '%s', %d, @val);", registro.hora, registro.fecha, registro.idAjustador);
+                    if( mysql_query(&mysql, buffer) ){
+                        fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                        exit(1);
+                    }
+
+                    sprintf(buffer, "SELECT @val;");
+                    if( mysql_query(&mysql, buffer) ){
+                        fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                        exit(1);
+                    }
+
+                    // Obtiene el query
+                    if( !(res = mysql_store_result(&mysql)) ){
+                        fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+                        exit(1);
+                    }
+
+                    // Despliega el resultado del ID
+                    if ((row = mysql_fetch_row(res))) {
+                        validacion = atoi(row[0]);
+                    }
+                    
+                    if(validacion == 1)
+                    {
+                        system("clear");
+                        printf("La hora no forma parte del rango de la jornada del ajustador.\n\n");
+                        mostrarJornada(buffer, mysql, registro.idAjustador, registro.fecha, &bandera);
+                    }
+
+                }
+
+            }
+        }
+        mysql_free_result(res);
+    }
+
+    validacion = 0;
+    system("clear");
+
+    while(validacion == 0)
+    {
+        mostrarUsuarios(buffer, mysql);
+        printf("->Ingresa el ID usuario que sufrió el siniestro: ");
+        scanf(" %d", &registro.idUsuario);
+
+        // Ejecuta el query
+        sprintf(buffer, "SELECT idUsuario FROM pr1_usuarios WHERE idUsuario = %d;", registro.idUsuario);
+        if( mysql_query(&mysql, buffer) ){
+            fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+            exit(1);
+        }
+        
+        // Obtiene el query
+        if( !(res = mysql_store_result(&mysql)) ){
+            fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+            exit(1);
         }
 
+        // Despliega el resultado del ID
+        if ((row = mysql_fetch_row(res))) {
+            validacion = atoi(row[0]);
+        }
+        
+        if(validacion == 0)
+        {
+            system("clear");
+            printf("El usuario no está registrado.\n\n");
+        }
+        mysql_free_result(res);
     }
+
+    validacion = 0;
+    system("clear");
+
+    while(validacion == 0)
+    {
+        mostrarColonias(buffer, mysql);
+        printf("->Ingresa la colonia en donde ocurrió el siniestro: ");
+        scanf(" %[^\n]", ubi);
+
+        //Verifica si la colonia está registrada
+        sprintf(buffer, "CALL validarColonia('%s', @val);", ubi);
+        if( mysql_query(&mysql, buffer) ){
+            fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+            exit(1);
+        }
+
+        sprintf(buffer, "SELECT @val;");
+        if( mysql_query(&mysql, buffer) ){
+            fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+            exit(1);
+        }
+
+        //Captura el resultado del Query
+        if( !(res = mysql_store_result(&mysql)) ){
+            fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+            exit(1);
+        }
+
+        if ((row = mysql_fetch_row(res))) {
+            validacion = atoi(row[0]);
+        }
+
+        if(validacion == 1){
+            system("clear");
+            printf("La colonia no está registrada.\n");
+        }
+    }
+    mysql_free_result(res);
+    system("clear");
+
+    //Busca el id de la colonia
+    sprintf(buffer, "SELECT idColonia FROM pr1_colonias WHERE colonia = '%s';", ubi);
+    if( mysql_query(&mysql, buffer) ){
+        fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+        exit(1);
+    }
+    
+    //Captura el resultado del Query
+    if( !(res = mysql_store_result(&mysql)) ){
+        fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+        exit(1);
+    }
+
+    if ((row = mysql_fetch_row(res))) {
+        registro.idColonia = atoi(row[0]);
+    }
+    mysql_free_result(res);
 }
 
 /**
@@ -177,7 +313,7 @@ void ingresarActividadReciente(char buffer[], MYSQL mysql)
             printf("El ajustador no está registrado.\n\n");
         }
     }
-
+    mysql_free_result(res);
     system("clear");
     validacion = 0;
 
@@ -211,7 +347,7 @@ void ingresarActividadReciente(char buffer[], MYSQL mysql)
             printf("El vehículo no está registrado.\n\n");
         }
     }
-
+    mysql_free_result(res);
     system("clear");
     validacion = 0;
 
@@ -290,6 +426,8 @@ void ingresarVehiculoNuevo(char buffer[], MYSQL mysql)
     printf("->Ingresa el modelo del vehículo: ");
     scanf(" %[^\n]", automovil.modelo);
     while(validacion != 0){
+        system("clear");
+        mostrarColonias(buffer, mysql);
         printf("\n->Ingresa la colonia en la que está actualmente: ");
         scanf(" %[^\n]", ubicacion_actual);
 
@@ -321,6 +459,7 @@ void ingresarVehiculoNuevo(char buffer[], MYSQL mysql)
             printf("La colonia no está registrada.\n");
         }
     }
+    mysql_free_result(res);
     system("clear");
 
     //Busca el id de la colonia
@@ -339,6 +478,7 @@ void ingresarVehiculoNuevo(char buffer[], MYSQL mysql)
     if ((row = mysql_fetch_row(res))) {
         automovil.idColonia = atoi(row[0]);
     }
+    mysql_free_result(res);
 
     // Ejecuta el query
     sprintf(buffer, "INSERT INTO pr1_vehiculos(modelo, idColonia) VALUES ('%s', %d);", automovil.modelo, automovil.idColonia);

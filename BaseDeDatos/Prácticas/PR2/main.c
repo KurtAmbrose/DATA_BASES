@@ -27,7 +27,7 @@
  *
  * @date Fecha de elaboración del programa: 2 de Noviembre del 2023
  *
- * @date Última Actualización: 8 de Noviembre del 2023
+ * @date Última Actualización: 9 de Noviembre del 2023
  *
  */
 
@@ -140,6 +140,8 @@ int main(int argc, char *argv[])
   return 0;
 }
 
+//  PROCEDIMIENTOS GENERALES QUE MUESTRAN REGISTROS DE LA BASE DE DATOS.
+
 /**
  * @brief Procedimiento que despliega los datos de la tabla de los ajustadores
  * @param String: buffer[]
@@ -237,4 +239,102 @@ extern void mostrarVehiculos(char buffer[], MYSQL mysql)
     }
     mysql_free_result(res);
 
+}
+
+/**
+ * @brief Procedimiento que muestra los usuarios registrados en la base de datos
+ * @param String: buffer[]
+ * @param Struct: mysql
+ * @author Diego Bravo Pérez y Javier Lachica y Sánchez
+ * @date 9/11/2023
+*/
+
+extern void mostrarUsuarios(char buffer[], MYSQL mysql)
+{
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    unsigned int i;
+
+    // Ejecuta el query
+    sprintf(buffer, "SELECT idUsuario, CONCAT(nombre, ' ', ap_paterno, ' ', ap_materno) AS nombre FROM pr1_usuarios;");
+    if( mysql_query(&mysql,buffer) ){
+        fprintf(stderr,"Error processing query \"%s\" Error: %s\n",buffer,mysql_error(&mysql));
+        exit(1);
+    }
+
+    // Obtiene el query
+    if( !(res = mysql_store_result(&mysql)) ){
+        fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+        exit(1);
+    }
+
+    // Despliega el resultado del query
+    printf("---USUARIOS REGISTRADOS----\n\n");
+    while( (row = mysql_fetch_row(res)) )
+    {
+        i = 0;
+
+        for( i=0 ; i < mysql_num_fields(res); i++ )
+        {
+            if(row[i] != NULL)
+            {
+              printf("|%s\n",row[i]);
+            }
+            else
+            {
+              printf(" \n");
+            }
+        }
+        fputc('\n',stdout);
+    }
+    mysql_free_result(res);
+}
+
+/**
+ * @brief Procedimiento que muestra las colonias registradas en la base de datos
+ * @param String: buffer[]
+ * @param Struct: mysql
+ * @author Diego Bravo Pérez y Javier Lachica y Sánchez
+ * @date 9/11/2023
+*/
+
+extern void mostrarColonias(char buffer[], MYSQL mysql)
+{
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    unsigned int i;
+
+    // Ejecuta el query
+    sprintf(buffer, "SELECT colonia FROM pr1_colonias;");
+    if( mysql_query(&mysql,buffer) ){
+        fprintf(stderr,"Error processing query \"%s\" Error: %s\n",buffer,mysql_error(&mysql));
+        exit(1);
+    }
+
+    // Obtiene el query
+    if( !(res = mysql_store_result(&mysql)) ){
+        fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+        exit(1);
+    }
+
+    // Despliega el resultado del query
+    printf("---COLONIAS REGISTRADAS----\n\n");
+    while( (row = mysql_fetch_row(res)) )
+    {
+        i = 0;
+
+        for( i=0 ; i < mysql_num_fields(res); i++ )
+        {
+            if(row[i] != NULL)
+            {
+              printf("|%s\n",row[i]);
+            }
+            else
+            {
+              printf(" \n");
+            }
+        }
+        fputc('\n',stdout);
+    }
+    mysql_free_result(res);
 }

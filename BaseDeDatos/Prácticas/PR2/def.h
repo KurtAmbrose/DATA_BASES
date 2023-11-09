@@ -65,3 +65,5 @@ extern void mostrarAjustadores(char buffer[], MYSQL mysql);
 extern void mostrarVehiculos(char buffer[], MYSQL mysql);
 void ingresarSiniestroNuevo(char buffer[], MYSQL mysql);
 void mostrarJornada(char buffer[], MYSQL mysql, unsigned int idAjustador, char fecha[], unsigned int *val);
+extern void mostrarUsuarios(char buffer[], MYSQL mysql);
+extern void mostrarColonias(char buffer[], MYSQL mysql);
