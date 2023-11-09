@@ -204,13 +204,12 @@ void ingresarSiniestroNuevo(char buffer[], MYSQL mysql)
             system("clear");
             printf("El usuario no está registrado.\n\n");
         }
-        mysql_free_result(res);
+        
     }
-
-    validacion = 0;
+    mysql_free_result(res);
     system("clear");
 
-    while(validacion == 0)
+    while(validacion != 0)
     {
         mostrarColonias(buffer, mysql);
         printf("->Ingresa la colonia en donde ocurrió el siniestro: ");
