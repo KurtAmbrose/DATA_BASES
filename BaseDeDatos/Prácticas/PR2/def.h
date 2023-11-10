@@ -59,6 +59,8 @@ typedef struct siniestro
  * @brief Declaración de funciones que se usarán en el programa
 */
 
+
+// Funciones del archivo funcionesInsertarDatos.c
 extern void menuInsertarDatos(MYSQL mysql);
 void ingresarUsuarioNuevo(char buffer[], MYSQL mysql);
 void ingresarAjustadorNuevo(char buffer[], MYSQL mysql);
@@ -66,12 +68,17 @@ void ingresarOperadorNuevo(char buffer[], MYSQL mysql);
 void ingresarVehiculoNuevo(char buffer[], MYSQL mysql);
 void ingresarColoniaNueva(char buffer[], MYSQL mysql);
 void ingresarActividadReciente(char buffer[], MYSQL mysql);
-extern void mostrarAjustadores(char buffer[], MYSQL mysql);
-extern void mostrarVehiculos(char buffer[], MYSQL mysql);
 void ingresarSiniestroNuevo(char buffer[], MYSQL mysql);
 void mostrarJornada(char buffer[], MYSQL mysql, unsigned int idAjustador, char fecha[], unsigned int *val);
+void registrarLlamada(char buffer[], MYSQL mysql);
+
+// Funciones del archivo funcionesMostrarDatos.c
+extern void mostrarAjustadores(char buffer[], MYSQL mysql);
+extern void mostrarVehiculos(char buffer[], MYSQL mysql);
 extern void mostrarUsuarios(char buffer[], MYSQL mysql);
 extern void mostrarColonias(char buffer[], MYSQL mysql);
-void registrarLlamada(char buffer[], MYSQL mysql);
 extern void mostrarOperadores(char buffer[], MYSQL mysql);
 extern void mostrarSiniestros(char buffer[], MYSQL mysql);
+
+// Funciones del archivo funcionesModificarDatos.c
+extern void menuModificarDatos(MYSQL mysql);
