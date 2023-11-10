@@ -1,3 +1,7 @@
+.DEFAULT_GOAL := all
+
+all: practica2.exe clean
+
 practica2.exe: main.o funcionesInsertarDatos.o funcionesMostrarDatos.o funcionesModificarDatos.o
 	gcc -o practica2.exe main.o funcionesInsertarDatos.o funcionesMostrarDatos.o funcionesModificarDatos.o -lnsl -lm -lz -lmysqlclient
 
@@ -14,4 +18,4 @@ main.o: main.c def.h
 	gcc -c main.c
 
 clean:
-	rm *.o
+	rm -f *.o *~

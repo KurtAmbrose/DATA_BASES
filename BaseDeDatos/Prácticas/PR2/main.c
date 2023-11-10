@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
       while(bandera == 0)
       {
         printf("---- Práctica 2: Aseguradora ------\n\n");
-        printf("\t-> a) Insertar datos nuevos\n\t-> b) Modificar datos ingresados\n\t-> c) Consultar Información\n\t-> d) Salir\n\n");
+        printf("\t-> a) Insertar datos nuevos\n\t-> b) Modificar datos existentes\n\t-> c) Consultar Información\n\t-> d) Salir\n\n");
         printf("Seleccione una opción: ");
         scanf(" %c", &opcion);
 
