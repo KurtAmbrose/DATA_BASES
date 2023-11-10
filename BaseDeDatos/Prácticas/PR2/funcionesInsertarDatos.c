@@ -1,3 +1,25 @@
+/**
+ * @file funcionesInsertarDatos.c
+ * 
+ * @brief Aquí se muestran las funciones relacionadas al submenú de insertar datos nuevos. Las opciones disponibles son las siguientes:
+ *          1) Ingresar usuarios: Inserta usuarios nuevos a la base de datos
+ *          2) Ingresar ajustadores: Inserta ajustadores nuevos a la base de datos
+ *          3) Ingresar operadores: Inserta operadores nuevos la base de datos
+ *          4) Ingresar siniestros: Inserta siniestros nuevos a la base de datos
+ *          5) Registrar llamadas: registra llamadas realizadas por los operadores que atendieron siniestros
+ *          6) Ingresar vehículo: Inserta vehículos nuevos a la base de datos
+ *          7) Ingresar colonia: registra una colonia a la base de datos
+ *          8) Registrar actividad: registra la actividad o jornada de los ajustadores a la base de datos
+ *        Por otro lado, también existen algunas funciones en este archivo que sirven para apoyar al proceso de registro de cada elemento.
+ * 
+ * @author Diego Bravo Pérez y Javier Lachica y Sánchez
+ * @date Fecha de creación: 2 de noviembre del 2023
+ * 
+ * @date Última actualización al archivo: 9 de Noviembre del 2023
+ * 
+*/
+
+
 #include "def.h"
 
 /**

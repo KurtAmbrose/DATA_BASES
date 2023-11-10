@@ -1,3 +1,26 @@
+/**
+ * @file funcionesMostrarDatos.c
+ * 
+ * @brief Este archivo contiene las funciones que muestran algunos datos de las tablas pertenecientes a la base de datos.
+ *        Estos sirven más que nada para auxiliar a algunas funciones externas que involucren la alteración de algunos registros
+ *        o propiamente de la insersiones de nuevos registros.
+ *          
+ *        El archivo contiene las siguientes funciones:
+ *          -> Mostrar Ajustadores
+ *          -> Mostrar vehículos
+ *          -> Mostrar Usuarios
+ *          -> Mostrar operadores
+ *          -> Mostrar siniestros
+ *          -> Mostrar colonias
+ * 
+ * @author Diego Bravo Pérez y Javier Lachica y Sánchez
+ * 
+ * @date Fecha de creación del archivo: 7 de Noviembre del 2023
+ * 
+ * @date Última Actualización: 9 de Noviembre del 2023
+*/
+
+
 #include "def.h"
 
 //  PROCEDIMIENTOS GENERALES QUE MUESTRAN REGISTROS DE LA BASE DE DATOS.

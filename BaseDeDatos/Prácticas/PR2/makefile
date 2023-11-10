@@ -1,5 +1,8 @@
-practica2.exe: main.o funcionesInsertarDatos.o funcionesMostrarDatos.o
-	gcc -o practica2.exe main.o funcionesInsertarDatos.o funcionesMostrarDatos.o -lnsl -lm -lz -lmysqlclient
+practica2.exe: main.o funcionesInsertarDatos.o funcionesMostrarDatos.o funcionesModificarDatos.o
+	gcc -o practica2.exe main.o funcionesInsertarDatos.o funcionesMostrarDatos.o funcionesModificarDatos.o -lnsl -lm -lz -lmysqlclient
+
+funcionesModificarDatos.o: funcionesModificarDatos.c
+	gcc -c funcionesModificarDatos.c
 
 funcionesMostrarDatos.o: funcionesMostrarDatos.c
 	gcc -c funcionesMostrarDatos.c
