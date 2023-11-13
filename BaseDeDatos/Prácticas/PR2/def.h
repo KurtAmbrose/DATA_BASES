@@ -26,7 +26,7 @@
 typedef struct persona
 {
     char nombre[DATOS], ap_paterno[DATOS], ap_materno[DATOS], correo[DATOS], contrasena[PWD], celular[CELL];
-    unsigned int idUsuario;
+    unsigned int id;
 }persona;
 
 typedef struct colonia
