@@ -85,3 +85,7 @@ extern void mostrarSiniestros(char buffer[], MYSQL mysql);
 extern void menuModificarDatos(MYSQL mysql);
 void modificarUsuario(char buffer[], MYSQL mysql);
 void borrarUsuario(char buffer[], MYSQL mysql);
+void modificarAjustador(char buffer[], MYSQL mysql);
+void borrarAjustador(char buffer[], MYSQL mysql);
+void modificarOperador(char buffer[], MYSQL mysql);
+void borrarOperador(char buffer[], MYSQL mysql);

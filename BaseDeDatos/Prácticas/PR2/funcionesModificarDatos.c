@@ -54,6 +54,236 @@
 #include "def.h"
 
 /**
+ * @brief Procedimiento que borra un operador cuando el usuario que usa el programa lo confirme 3 veces
+ * @param String: buffer[]
+ * @param Struct: mysql
+ * @author Diego Bravo Pérez y Javier Lachica y Sánchez
+ * @date 12/11/2023
+*/
+
+void borrarOperador(char buffer[], MYSQL mysql)
+{
+    int contador;
+    unsigned int validacion;
+    char confirmacion;
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    persona operador;
+
+    validacion = 0;
+    contador = 3;
+
+    while(validacion == 0)
+    {
+        mostrarOperadores(buffer, mysql);
+        printf("Ingresa el ID del operador que quieras modificar: ");
+        scanf(" %d", &operador.id);
+
+        // Ejecuta el query
+        sprintf(buffer, "SELECT idOperador FROM pr1_operadores WHERE idOperador = %d;", operador.id);
+        if( mysql_query(&mysql, buffer) ){
+            fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+            exit(1);
+        }
+        
+        // Obtiene el query
+        if( !(res = mysql_store_result(&mysql)) ){
+            fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+            exit(1);
+        }
+
+        // Despliega el resultado del ID
+        if ((row = mysql_fetch_row(res))) {
+            validacion = atoi(row[0]);
+        }
+        
+        if(validacion == 0)
+        {
+            system("clear");
+            printf("El operador no está registrado.\n\n");
+        }
+    }
+
+    mysql_free_result(res);
+    system("clear");
+
+    while(contador > 0)
+    {
+        printf("¿Estás seguro?\n\n\t[S]í\t[N]o (Confirmación: %d): ", contador);
+        scanf(" %c", &confirmacion);
+        if(confirmacion == 'S' || confirmacion == 's')
+        {
+            contador--;
+            printf("\n\n");
+        }
+        else
+        {
+            contador = 0;
+        }
+    }
+
+    if(confirmacion == 'S' || confirmacion == 's')
+    {
+        // Ejecuta el query
+            sprintf(buffer, "DELETE FROM pr1_operadores WHERE idOperador = '%d';", operador.id);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            else{
+                system("clear");
+                printf("¡¡¡Datos borrados con éxito!!!\n\n");
+            }
+    }
+
+    else
+    {
+        system("clear");
+        printf("Procedimiento cancelado.\n\n");
+    }
+}
+
+/**
+ * @brief Procedimiento que despliega un menú para mostrarle a la persona que ocupa el programa las opciones que
+ *        puede modificar de un operador de la base de datos. Una vez que se ingresa la opción a realizar, el programa
+ *        solicita los nuevos datos para realizar el cambio.
+ * @param String: buffer[]
+ * @param Struct: mysql
+ * @author Diego Bravo Pérez y Javier Lachica y Sánchez
+ * @date 12/11/2023
+*/
+
+void modificarOperador(char buffer[], MYSQL mysql)
+{
+    unsigned int opcion, validacion, flag;
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    persona operador;
+
+    opcion = 0;
+    validacion = 0;
+    flag = 0;
+
+    while(validacion == 0)
+    {
+        mostrarOperadores(buffer, mysql);
+        printf("Ingresa el ID del operador que quieras modificar: ");
+        scanf(" %d", &operador.id);
+
+        // Ejecuta el query
+        sprintf(buffer, "SELECT idOperador FROM pr1_operadores WHERE idOperador = %d;", operador.id);
+        if( mysql_query(&mysql, buffer) ){
+            fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+            exit(1);
+        }
+        
+        // Obtiene el query
+        if( !(res = mysql_store_result(&mysql)) ){
+            fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+            exit(1);
+        }
+
+        // Despliega el resultado del ID
+        if ((row = mysql_fetch_row(res))) {
+            validacion = atoi(row[0]);
+        }
+        
+        if(validacion == 0)
+        {
+            system("clear");
+            printf("El operador no está registrado.\n\n");
+        }
+    }
+
+    mysql_free_result(res);
+    system("clear");
+
+    while(flag == 0)
+    {
+        printf("---¿Qué deseas modificar?---\n\n");
+        printf("\t1) Nombre\n\t2) Apellidos\n\t3) Teléfono\n\t4) Regresar\n\n");
+        printf("Ingresa la opción que desee realizar: ");
+        scanf(" %d", &opcion);
+        switch(opcion)
+        {
+            case 1:
+            flag = 1;
+            system("clear");
+            printf("Ingresa el nombre: ");
+            scanf(" %[^\n]", operador.nombre);
+
+            // Ejecuta el query
+            sprintf(buffer, "UPDATE pr1_operadores SET nombre = '%s' WHERE idOperador = '%d';", operador.nombre, operador.id);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            else{
+                system("clear");
+                printf("¡¡¡Datos actualizados con éxito!!!\n\n");
+            }
+            break;
+
+            case 2:
+            flag = 1;
+            system("clear");
+            printf("Ingresa el apellido paterno: ");
+            scanf(" %[^\n]", operador.ap_paterno);
+            printf("Ingresa el apellido materno: ");
+            scanf(" %[^\n]", operador.ap_materno);
+
+            // Ejecuta el query
+            sprintf(buffer, "UPDATE pr1_operadores SET ap_paterno = '%s' WHERE idOperador = %d;", operador.ap_paterno, operador.id);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            else{
+                sprintf(buffer, "UPDATE pr1_operadores SET ap_materno = '%s' WHERE idOperador = %d;", operador.ap_materno, operador.id);
+                if( mysql_query(&mysql, buffer) ){
+                    fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                    exit(1);
+                }
+                else{
+                    system("clear");
+                    printf("¡¡¡Datos actualizados con éxito!!!\n\n");
+                } 
+            }
+            break;
+
+            case 3:
+            flag = 1;
+            system("clear");
+            printf("Ingresa el nuevo número telefónico: ");
+            scanf(" %[^\n]", operador.celular);
+
+            // Ejecuta el query
+            sprintf(buffer, "UPDATE pr1_operadores SET telefono = '%s' WHERE idOperador = '%d';", operador.celular, operador.id);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            else{
+                system("clear");
+                printf("¡¡¡Datos actualizados con éxito!!!\n\n");
+            }
+            break;
+
+            case 4:
+            flag = 1;
+            system("clear");
+            break;
+
+            default:
+            system("clear");
+            printf("Ingresa una opción válida\n\n");
+            break;
+        }
+    }
+
+}
+
+/**
  * @brief Procedimiento que borra un ajustador cuando el usuario que usa el programa lo confirme 3 veces
  * @param String: buffer[]
  * @param Struct: mysql
@@ -716,7 +946,54 @@ extern void menuModificarDatos(MYSQL mysql)
 
             case 3:
             system("clear");
-        
+            while(flag == 0)
+            {
+                printf("---¿Qué deseas realizar?---\n\n");
+                printf(" a) Modificar Operador\t b) Borrar Operador\t c) Regresar\n\n");
+                printf("Ingresa una opción: ");
+                scanf(" %c", &opc);
+                switch(opc)
+                {
+                    case 'A':
+                    system("clear");
+                    flag = 1;
+                    modificarOperador(buffer, mysql);
+                    break;
+
+                    case 'a':
+                    system("clear");
+                    flag = 1;
+                    modificarOperador(buffer, mysql);
+                    break;
+
+                    case 'B':
+                    system("clear");
+                    flag = 1;
+                    borrarOperador(buffer, mysql);
+                    break;
+
+                    case 'b':
+                    system("clear");
+                    flag = 1;
+                    borrarOperador(buffer, mysql);
+                    break;
+
+                    case 'c':
+                    system("clear");
+                    flag = 1;
+                    break;
+
+                    case 'C':
+                    system("clear");
+                    flag = 1;
+                    break;
+
+                    default:
+                    system("clear");
+                    printf("Elige una opción correcta.\n\n");
+                    break;                    
+                }
+            }
             break;
 
             case 4:
