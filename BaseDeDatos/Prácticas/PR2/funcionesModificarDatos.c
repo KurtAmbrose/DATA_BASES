@@ -48,10 +48,270 @@
  * 
  * @date Fecha de creación: 10 de Noviembre del 2023
  * 
- * @date Última modificación: 10 de Noviembre del 2023
+ * @date Última modificación: 12 de Noviembre del 2023
 */
 
 #include "def.h"
+
+/**
+ * @brief Procedimiento que borra un usuario cuando el usuario que usa el programa lo confirme 3 veces
+ * @param String: buffer[]
+ * @param Struct: mysql
+ * @author Diego Bravo Pérez y Javier Lachica y Sánchez
+ * @date 12/11/2023
+*/
+
+void borrarUsuario(char buffer[], MYSQL mysql)
+{
+    int contador;
+    unsigned int validacion;
+    char confirmacion;
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    persona usuario;
+
+    validacion = 0;
+    contador = 3;
+
+    while(validacion == 0)
+    {
+        mostrarUsuarios(buffer, mysql);
+        printf("Ingresa el ID del usuario que quieras modificar: ");
+        scanf(" %d", &usuario.idUsuario);
+
+        // Ejecuta el query
+        sprintf(buffer, "SELECT idUsuario FROM pr1_usuarios WHERE idUsuario = %d;", usuario.idUsuario);
+        if( mysql_query(&mysql, buffer) ){
+            fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+            exit(1);
+        }
+        
+        // Obtiene el query
+        if( !(res = mysql_store_result(&mysql)) ){
+            fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+            exit(1);
+        }
+
+        // Despliega el resultado del ID
+        if ((row = mysql_fetch_row(res))) {
+            validacion = atoi(row[0]);
+        }
+        
+        if(validacion == 0)
+        {
+            system("clear");
+            printf("El usuario no está registrado.\n\n");
+        }
+    }
+
+    mysql_free_result(res);
+    system("clear");
+
+    while(contador > 0)
+    {
+        printf("¿Estás seguro?\n\n\t[S]í\t[N]o (Confirmación: %d): ", contador);
+        scanf(" %c", &confirmacion);
+        if(confirmacion == 'S' || confirmacion == 's')
+        {
+            contador--;
+            printf("\n\n");
+        }
+        else
+        {
+            contador = 0;
+        }
+    }
+
+    if(confirmacion == 'S' || confirmacion == 's')
+    {
+        // Ejecuta el query
+            sprintf(buffer, "DELETE FROM pr1_usuarios WHERE idUsuario = '%d';", usuario.idUsuario);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            else{
+                system("clear");
+                printf("¡¡¡Datos borrados con éxito!!!\n\n");
+            }
+    }
+
+    else
+    {
+        system("clear");
+        printf("Procedimiento cancelado.\n\n");
+    }
+}
+
+/**
+ * @brief Procedimiento que despliega un menú para mostrarle a la persona que ocupa el programa las opciones que
+ *        puede modificar de un usuario de la base de datos. Una vez que se ingresa la opción a realizar, el programa
+ *        solicita los nuevos datos para realizar el cambio.
+ * @param String: buffer[]
+ * @param Struct: mysql
+ * @author Diego Bravo Pérez y Javier Lachica y Sánchez
+ * @date 12/11/2023
+*/
+
+void modificarUsuario(char buffer[], MYSQL mysql)
+{
+    unsigned int opcion, validacion, flag;
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    persona usuario;
+
+    opcion = 0;
+    validacion = 0;
+    flag = 0;
+
+    while(validacion == 0)
+    {
+        mostrarUsuarios(buffer, mysql);
+        printf("Ingresa el ID del usuario que quieras modificar: ");
+        scanf(" %d", &usuario.idUsuario);
+
+        // Ejecuta el query
+        sprintf(buffer, "SELECT idUsuario FROM pr1_usuarios WHERE idUsuario = %d;", usuario.idUsuario);
+        if( mysql_query(&mysql, buffer) ){
+            fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+            exit(1);
+        }
+        
+        // Obtiene el query
+        if( !(res = mysql_store_result(&mysql)) ){
+            fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+            exit(1);
+        }
+
+        // Despliega el resultado del ID
+        if ((row = mysql_fetch_row(res))) {
+            validacion = atoi(row[0]);
+        }
+        
+        if(validacion == 0)
+        {
+            system("clear");
+            printf("El usuario no está registrado.\n\n");
+        }
+    }
+
+    mysql_free_result(res);
+    system("clear");
+
+    while(flag == 0)
+    {
+        printf("---¿Qué deseas modificar?---\n\n");
+        printf("\t1) Nombre\n\t2) Apellidos\n\t3) Celular\n\t4) Correo\n\t5) Contraseña\n\n");
+        printf("Ingresa la opción que desee realizar: ");
+        scanf(" %d", &opcion);
+        switch(opcion)
+        {
+            case 1:
+            flag = 1;
+            system("clear");
+            printf("Ingresa el nombre: ");
+            scanf(" %[^\n]", usuario.nombre);
+
+            // Ejecuta el query
+            sprintf(buffer, "UPDATE pr1_usuarios SET nombre = '%s' WHERE idUsuario = '%d';", usuario.nombre, usuario.idUsuario);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            else{
+                system("clear");
+                printf("¡¡¡Datos actualizados con éxito!!!\n\n");
+            }
+            break;
+
+            case 2:
+            flag = 1;
+            system("clear");
+            printf("Ingresa el apellido paterno: ");
+            scanf(" %[^\n]", usuario.ap_paterno);
+            printf("Ingresa el apellido materno: ");
+            scanf(" %[^\n]", usuario.ap_materno);
+
+            // Ejecuta el query
+            sprintf(buffer, "UPDATE pr1_usuarios SET ap_paterno = '%s' WHERE idUsuario = %d;", usuario.ap_paterno, usuario.idUsuario);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            else{
+                sprintf(buffer, "UPDATE pr1_usuarios SET ap_materno = '%s' WHERE idUsuario = %d;", usuario.ap_materno, usuario.idUsuario);
+                if( mysql_query(&mysql, buffer) ){
+                    fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                    exit(1);
+                }
+                else{
+                    system("clear");
+                    printf("¡¡¡Datos actualizados con éxito!!!\n\n");
+                } 
+            }
+            break;
+
+            case 3:
+            flag = 1;
+            system("clear");
+            printf("Ingresa el nuevo número telefónico: ");
+            scanf(" %[^\n]", usuario.celular);
+
+            // Ejecuta el query
+            sprintf(buffer, "UPDATE pr1_usuarios SET celular = '%s' WHERE idUsuario = '%d';", usuario.celular, usuario.idUsuario);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            else{
+                system("clear");
+                printf("¡¡¡Datos actualizados con éxito!!!\n\n");
+            }
+            break;
+
+            case 4:
+            flag = 1;
+            system("clear");
+            printf("Ingresa el correo nuevo: ");
+            scanf(" %[^\n]", usuario.correo);
+
+            // Ejecuta el query
+            sprintf(buffer, "UPDATE pr1_usuarios SET correo = '%s' WHERE idUsuario = '%d';", usuario.correo, usuario.idUsuario);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            else{
+                system("clear");
+                printf("¡¡¡Datos actualizados con éxito!!!\n\n");
+            }
+            break;
+
+            case 5:
+            flag = 1;
+            system("clear");
+            printf("Ingresa la contraseña nueva: ");
+            scanf(" %[^\n]", usuario.contrasena);
+
+            // Ejecuta el query
+            sprintf(buffer, "UPDATE pr1_usuarios SET contraseña = '%s' WHERE idUsuario = '%d';", usuario.contrasena, usuario.idUsuario);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            else{
+                system("clear");
+                printf("¡¡¡Datos actualizados con éxito!!!\n\n");
+            }
+            break;
+
+            default:
+            system("clear");
+            printf("Ingresa una opción válida\n\n");
+            break;
+        }
+    }
+}
 
 /**
  * @brief Procedimiento que muestra el submenú de la opción "Modificar Datos"
@@ -63,7 +323,8 @@
 extern void menuModificarDatos(MYSQL mysql)
 {
     char buffer[MAX];
-    unsigned int opcion, bandera;
+    unsigned int opcion, bandera, flag;
+    char opc;
     opcion = 0;
     bandera = 0;
     strcpy(buffer, "\0");
@@ -71,6 +332,7 @@ extern void menuModificarDatos(MYSQL mysql)
 
     while(bandera == 0)
     {
+        flag = 0;
         printf("---Modificar datos existentes---\n\n");
         printf("\t-> 1) Usuarios\n\t-> 2) Ajustadores\n\t-> 3) Operadores\n\t-> 4) Siniestros\n\t-> 5) Llamadas\n\t-> 6) Vehículos\n\t-> 7) Colonias\n\t-> 8) Actividad de los Ajustadores\n\t-> 9) Regresar\n\n");
         printf("Ingresa una opción que quieras realizar: ");
@@ -79,7 +341,54 @@ extern void menuModificarDatos(MYSQL mysql)
         {
             case 1:
             system("clear");
-    
+            while(flag == 0)
+            {
+                printf("---¿Qué deseas realizar?---\n\n");
+                printf(" a) Modificar Usuario\t b) Borrar Usuario\t c) Regresar\n\n");
+                printf("Ingresa una opción: ");
+                scanf(" %c", &opc);
+                switch(opc)
+                {
+                    case 'A':
+                    system("clear");
+                    flag = 1;
+                    modificarUsuario(buffer, mysql);
+                    break;
+
+                    case 'a':
+                    system("clear");
+                    flag = 1;
+                    modificarUsuario(buffer, mysql);
+                    break;
+
+                    case 'B':
+                    system("clear");
+                    flag = 1;
+                    borrarUsuario(buffer, mysql);
+                    break;
+
+                    case 'b':
+                    system("clear");
+                    flag = 1;
+                    borrarUsuario(buffer, mysql);
+                    break;
+
+                    case 'c':
+                    system("clear");
+                    flag = 1;
+                    break;
+
+                    case 'C':
+                    system("clear");
+                    flag = 1;
+                    break;
+
+                    default:
+                    system("clear");
+                    printf("Elige una opción correcta.\n\n");
+                    break;                    
+                }
+            }
             break;
 
             case 2:

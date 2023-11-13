@@ -26,6 +26,7 @@
 typedef struct persona
 {
     char nombre[DATOS], ap_paterno[DATOS], ap_materno[DATOS], correo[DATOS], contrasena[PWD], celular[CELL];
+    unsigned int idUsuario;
 }persona;
 
 typedef struct colonia
@@ -82,3 +83,5 @@ extern void mostrarSiniestros(char buffer[], MYSQL mysql);
 
 // Funciones del archivo funcionesModificarDatos.c
 extern void menuModificarDatos(MYSQL mysql);
+void modificarUsuario(char buffer[], MYSQL mysql);
+void borrarUsuario(char buffer[], MYSQL mysql);
