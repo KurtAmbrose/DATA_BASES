@@ -46,3 +46,21 @@ BEGIN
 END$
 
 DELIMITER ;
+
+--- PORCEDIMIENTO QUE VERIFICA SI LAS HORAS INGRESADAS ESTÁN EN ÓRDEN CORRECTO
+
+DROP PROCEDURE IF EXISTS validarRango;
+
+DELIMITER $
+
+CREATE PROCEDURE validarRango(IN tiempo1 TIME, IN tiempo2 TIME, OUT validacion INT)
+
+BEGIN
+    IF tiempo1 > tiempo2 THEN
+        SET validacion = 1;
+    ELSE
+        SET validacion = 0;
+    END IF;
+END$
+
+DELIMITER ;

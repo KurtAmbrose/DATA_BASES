@@ -45,9 +45,7 @@ typedef struct actividad
 {
     char horaInicio[TIEMPO], horaFin[TIEMPO];
     char fecha[FECHA];
-    unsigned int idAjustador;
-    unsigned int idVehiculo;
-    unsigned int km;
+    unsigned int idAjustador, idVehiculo, km, id;
 }actividad;
 
 typedef struct siniestro
@@ -80,6 +78,7 @@ extern void mostrarUsuarios(char buffer[], MYSQL mysql);
 extern void mostrarColonias(char buffer[], MYSQL mysql);
 extern void mostrarOperadores(char buffer[], MYSQL mysql);
 extern void mostrarSiniestros(char buffer[], MYSQL mysql);
+extern void mostrarActividad(char buffer[], MYSQL mysql);
 
 // Funciones del archivo funcionesModificarDatos.c
 extern void menuModificarDatos(MYSQL mysql);
@@ -93,3 +92,5 @@ void modificarColonia(char buffer[], MYSQL mysql);
 void borrarColonia(char buffer[], MYSQL mysql);
 void modificarVehiculo(char buffer[], MYSQL mysql);
 void borrarVehiculo(char buffer[], MYSQL mysql);
+void modificarActividad(char buffer[], MYSQL mysql);
+void borrarActividad(char buffer[], MYSQL mysql);

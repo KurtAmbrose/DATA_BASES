@@ -17,9 +17,8 @@
  * 
  * @date Fecha de creación del archivo: 7 de Noviembre del 2023
  * 
- * @date Última Actualización: 9 de Noviembre del 2023
+ * @date Última Actualización: 13 de Noviembre del 2023
 */
-
 
 #include "def.h"
 
@@ -300,6 +299,55 @@ extern void mostrarSiniestros(char buffer[], MYSQL mysql)
 
     // Despliega el resultado del query
     printf("---SINIESTROS REGISTRADOS----\n\n");
+    while( (row = mysql_fetch_row(res)) )
+    {
+        i = 0;
+
+        for( i=0 ; i < mysql_num_fields(res); i++ )
+        {
+            if(row[i] != NULL)
+            {
+              printf("|%s\n",row[i]);
+            }
+            else
+            {
+              printf(" \n");
+            }
+        }
+        fputc('\n',stdout);
+    }
+    mysql_free_result(res);
+}
+
+/**
+ * @brief Procedimiento que muestra la actividad de los ajustadores (o jornada) registrada en la base de datos
+ * @param String: buffer[]
+ * @param Struct: mysql
+ * @author Diego Bravo Pérez y Javier Lachica y Sánchez
+ * @date 13/11/2023
+*/
+
+extern void mostrarActividad(char buffer[], MYSQL mysql)
+{
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    unsigned int i;
+
+    // Ejecuta el query
+    sprintf(buffer, "SELECT idAV, hora_inicio, hora_fin, fecha, CONCAT(nombre, ' ', ap_paterno, ' ', ap_materno) AS ajustador, modelo, kilometraje FROM pr1_A_V LEFT JOIN pr1_ajustadores USING(idAjustador) LEFT JOIN pr1_vehiculos USING(idVehiculo);");
+    if( mysql_query(&mysql,buffer) ){
+        fprintf(stderr,"Error processing query \"%s\" Error: %s\n",buffer,mysql_error(&mysql));
+        exit(1);
+    }
+
+    // Obtiene el query
+    if( !(res = mysql_store_result(&mysql)) ){
+        fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+        exit(1);
+    }
+
+    // Despliega el resultado del query
+    printf("---JORNADAS REGISTRADAS----\n\n");
     while( (row = mysql_fetch_row(res)) )
     {
         i = 0;

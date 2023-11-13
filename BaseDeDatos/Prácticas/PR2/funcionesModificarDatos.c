@@ -61,6 +61,365 @@
  * @date 13/11/2023
 */
 
+void borrarActividad(char buffer[], MYSQL mysql)
+{
+    int contador;
+    unsigned int validacion;
+    char confirmacion;
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    actividad jornada;
+
+    contador = 3;
+    validacion = 0;
+
+    while(validacion == 0)
+    {
+        mostrarActividad(buffer, mysql);
+        printf("Ingresa el ID de la actividad que quieras borrar: ");
+        scanf(" %d", &jornada.id);
+
+        // Ejecuta el query
+        sprintf(buffer, "SELECT idAV FROM pr1_A_V WHERE idAV = %d;", jornada.id);
+        if( mysql_query(&mysql, buffer) ){
+            fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+            exit(1);
+        }
+        
+        // Obtiene el query
+        if( !(res = mysql_store_result(&mysql)) ){
+            fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+            exit(1);
+        }
+
+        // Despliega el resultado del ID
+        if ((row = mysql_fetch_row(res))) {
+            validacion = atoi(row[0]);
+        }
+        
+        if(validacion == 0)
+        {
+            system("clear");
+            printf("La jornada no está registrada.\n\n");
+        }
+    }
+
+    mysql_free_result(res);
+    system("clear");
+
+    while(contador > 0)
+    {
+        printf("¿Estás seguro?\n\n\t[S]í\t[N]o (Confirmación: %d): ", contador);
+        scanf(" %c", &confirmacion);
+        if(confirmacion == 'S' || confirmacion == 's')
+        {
+            contador--;
+            printf("\n\n");
+        }
+        else
+        {
+            contador = 0;
+        }
+    }
+
+    if(confirmacion == 'S' || confirmacion == 's')
+    {
+        // Ejecuta el query
+            sprintf(buffer, "DELETE FROM pr1_A_V WHERE idAV = %d;", jornada.id);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            else{
+                system("clear");
+                printf("¡¡¡Datos borrados con éxito!!!\n\n");
+            }
+    }
+
+    else
+    {
+        system("clear");
+        printf("Procedimiento cancelado.\n\n");
+    }
+}
+
+/**
+ * @brief Procedimiento que despliega un menú para mostrarle a la persona que ocupa el programa las opciones que
+ *        puede modificar de un vehículo de la base de datos. Una vez que se ingresa la opción a realizar, el programa
+ *        solicita los nuevos datos para realizar el cambio.
+ * @param String: buffer[]
+ * @param Struct: mysql
+ * @author Diego Bravo Pérez y Javier Lachica y Sánchez
+ * @date 13/11/2023
+*/
+
+void modificarActividad(char buffer[], MYSQL mysql)
+{
+    unsigned int opcion, validacion, flag;
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    actividad jornada;
+
+    opcion = 0;
+    validacion = 0;
+    flag = 0;
+
+    while(validacion == 0)
+    {
+        mostrarActividad(buffer, mysql);
+        printf("Ingresa el ID de la jornada que quieras modificar: ");
+        scanf(" %d", &jornada.id);
+
+        // Ejecuta el query
+        sprintf(buffer, "SELECT idAV FROM pr1_A_V WHERE idAV = %d;", jornada.id);
+        if( mysql_query(&mysql, buffer) ){
+            fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+            exit(1);
+        }
+        
+        // Obtiene el query
+        if( !(res = mysql_store_result(&mysql)) ){
+            fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+            exit(1);
+        }
+
+        // Despliega el resultado del ID
+        if ((row = mysql_fetch_row(res))) {
+            validacion = atoi(row[0]);
+        }
+        
+        if(validacion == 0)
+        {
+            system("clear");
+            printf("La jornada no está registrada.\n\n");
+        }
+    }
+
+    mysql_free_result(res);
+    system("clear");
+
+    while(flag == 0)
+    {
+        printf("---¿Qué deseas modificar?---\n\n");
+        printf("\t1) Hora de inicio y fin\n\t2) Fecha\n\t3) Ajustador\n\t4) Vehículo\n\t5) Kilometraje\n\t6) Regresar\n\n");
+        printf("Ingresa la opción que desee realizar: ");
+        scanf(" %d", &opcion);
+        switch(opcion)
+        {
+            case 1:
+            flag = 1;
+            system("clear");
+            while(validacion != 0)
+            {
+                printf("Ingresa la hora de inicio con el siguiente formato HH:MM:SS (incluyendo los ':'): ");
+                scanf(" %[^\n]", jornada.horaInicio);
+                printf("Ingresa la hora de fin con el siguiente formato HH:MM:SS (incluyendo los ':'): ");
+                scanf(" %[^\n]", jornada.horaFin);
+
+                // Ejecuta el query
+                sprintf(buffer, "CALL validarRango('%s', '%s', @val);", jornada.horaInicio, jornada.horaFin);
+                if( mysql_query(&mysql, buffer) ){
+                    fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                    exit(1);
+                }
+
+                sprintf(buffer, "SELECT @val");
+                if( mysql_query(&mysql, buffer) ){
+                    fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                    exit(1);
+                }
+                
+                // Obtiene el query
+                if( !(res = mysql_store_result(&mysql)) ){
+                    fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+                    exit(1);
+                }
+
+                // Despliega el resultado del ID
+                if ((row = mysql_fetch_row(res))) {
+                    validacion = atoi(row[0]);
+                }
+                
+                if(validacion != 0)
+                {
+                    system("clear");
+                    printf("La hora de inicio debe de ser menor a la hora fin.\n\n");
+                }
+
+            }
+
+            // Ejecuta el query
+            sprintf(buffer, "UPDATE pr1_A_V SET hora_inicio = '%s' WHERE idAV = %d;", jornada.horaInicio, jornada.id);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            else{
+                sprintf(buffer, "UPDATE pr1_A_V SET hora_fin = '%s' WHERE idAV = %d;", jornada.horaFin, jornada.id);
+                if( mysql_query(&mysql, buffer) ){
+                    fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                    exit(1);
+                }
+                else{
+                    system("clear");
+                    printf("¡¡¡Datos Guardados con éxito!!!\n\n");
+                }
+            }
+            break;
+
+            case 2:
+            flag = 1;
+            system("clear");
+            printf("Ingresa la fecha con el formato AAAA-MM-DD (incluyendo los '-'): ");
+            scanf(" %[^\n]", jornada.fecha);
+
+            // Ejecuta el query
+            sprintf(buffer, "UPDATE pr1_A_V SET fecha = '%s' WHERE idAV = %d;", jornada.fecha, jornada.id);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            else{
+                system("clear");
+                printf("¡¡¡Datos actualizados con éxito!!!\n\n");
+            }
+            break;
+
+            case 3:
+            flag = 1;
+            system("clear");
+            validacion = 0;
+            while(validacion == 0)
+            {
+                mostrarAjustadores(buffer, mysql);
+                printf("Ingresa el ID del ajustador que quieras modificar: ");
+                scanf(" %d", &jornada.idAjustador);
+
+                // Ejecuta el query
+                sprintf(buffer, "SELECT idAjustador FROM pr1_ajustadores WHERE idAjustador = %d;", jornada.idAjustador);
+                if( mysql_query(&mysql, buffer) ){
+                    fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                    exit(1);
+                }
+                
+                // Obtiene el query
+                if( !(res = mysql_store_result(&mysql)) ){
+                    fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+                    exit(1);
+                }
+
+                // Despliega el resultado del ID
+                if ((row = mysql_fetch_row(res))) {
+                    validacion = atoi(row[0]);
+                }
+                
+                if(validacion == 0)
+                {
+                    system("clear");
+                    printf("El ajustador no está registrado.\n\n");
+                }
+            }
+            
+
+            // Ejecuta el query
+            sprintf(buffer, "UPDATE pr1_A_V SET idAjustador = %d WHERE idAV = %d;", jornada.idAjustador, jornada.id);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            else{
+                system("clear");
+                printf("¡¡¡Datos actualizados con éxito!!!\n\n");
+            }
+            break;
+
+            case 4:
+            flag = 1;
+            system("clear");
+            validacion = 0;
+            while(validacion == 0)
+            {
+                mostrarVehiculos(buffer, mysql);
+                printf("Ingresa el ID del vehículo que quieras modificar: ");
+                scanf(" %d", &jornada.idVehiculo);
+
+                // Ejecuta el query
+                sprintf(buffer, "SELECT idVehiculo FROM pr1_vehiculos WHERE idVehiculo = %d;", jornada.idVehiculo);
+                if( mysql_query(&mysql, buffer) ){
+                    fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                    exit(1);
+                }
+                
+                // Obtiene el query
+                if( !(res = mysql_store_result(&mysql)) ){
+                    fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+                    exit(1);
+                }
+
+                // Despliega el resultado del ID
+                if ((row = mysql_fetch_row(res))) {
+                    validacion = atoi(row[0]);
+                }
+                
+                if(validacion == 0)
+                {
+                    system("clear");
+                    printf("El vehículo no está registrado.\n\n");
+                }
+            }
+            
+
+            // Ejecuta el query
+            sprintf(buffer, "UPDATE pr1_A_V SET idVehiculo = %d WHERE idAV = %d;", jornada.idVehiculo, jornada.id);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            else{
+                system("clear");
+                printf("¡¡¡Datos actualizados con éxito!!!\n\n");
+            }
+            break;
+
+            case 5:
+            flag = 1;
+            system("clear");
+            printf("Ingresa el kilometraje: ");
+            scanf(" %d", &jornada.km);
+
+            // Ejecuta el query
+            sprintf(buffer, "UPDATE pr1_A_V SET kilometraje = %d WHERE idAV = %d;", jornada.km, jornada.id);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            else{
+                system("clear");
+                printf("¡¡¡Datos actualizados con éxito!!!\n\n");
+            }
+            break;
+
+            case 6:
+            flag = 1;
+            system("clear");
+            break;
+
+            default:
+            system("clear");
+            printf("Ingresa una opción válida\n\n");
+            break;
+        }
+    }
+}
+
+/**
+ * @brief Procedimiento que borra una colonia cuando el usuario que usa el programa lo confirme 3 veces
+ * @param String: buffer[]
+ * @param Struct: mysql
+ * @author Diego Bravo Pérez y Javier Lachica y Sánchez
+ * @date 13/11/2023
+*/
+
 void borrarVehiculo(char buffer[], MYSQL mysql)
 {
     int contador;
@@ -1519,7 +1878,6 @@ extern void menuModificarDatos(MYSQL mysql)
 
             case 4:
             system("clear");
-            
             break;
 
             case 5:
@@ -1632,6 +1990,54 @@ extern void menuModificarDatos(MYSQL mysql)
 
             case 8:
             system("clear");
+            while(flag == 0)
+            {
+                printf("---¿Qué deseas realizar?---\n\n");
+                printf(" a) Modificar Actividad\t b) Borrar Actividad\t c) Regresar\n\n");
+                printf("Ingresa una opción: ");
+                scanf(" %c", &opc);
+                switch(opc)
+                {
+                    case 'A':
+                    system("clear");
+                    flag = 1;
+                    modificarActividad(buffer, mysql);
+                    break;
+
+                    case 'a':
+                    system("clear");
+                    flag = 1;
+                    modificarActividad(buffer, mysql);
+                    break;
+
+                    case 'B':
+                    system("clear");
+                    flag = 1;
+                    borrarActividad(buffer, mysql);
+                    break;
+
+                    case 'b':
+                    system("clear");
+                    flag = 1;
+                    borrarActividad(buffer, mysql);
+                    break;
+
+                    case 'c':
+                    system("clear");
+                    flag = 1;
+                    break;
+
+                    case 'C':
+                    system("clear");
+                    flag = 1;
+                    break;
+
+                    default:
+                    system("clear");
+                    printf("Elige una opción correcta.\n\n");
+                    break;                    
+                }
+            }
             break;
 
             case 9:
