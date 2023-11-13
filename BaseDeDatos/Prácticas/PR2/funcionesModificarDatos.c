@@ -61,6 +61,264 @@
  * @date 13/11/2023
 */
 
+void borrarVehiculo(char buffer[], MYSQL mysql)
+{
+    int contador;
+    unsigned int validacion;
+    char confirmacion;
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    vehiculo carro;
+
+    contador = 3;
+
+    while(validacion == 0)
+    {
+        mostrarVehiculos(buffer, mysql);
+        printf("Ingresa el ID del vehículo que quieras borrar: ");
+        scanf(" %d", &carro.id);
+
+        // Ejecuta el query
+        sprintf(buffer, "SELECT idVehiculo FROM pr1_vehiculos WHERE idVehiculo = %d;", carro.id);
+        if( mysql_query(&mysql, buffer) ){
+            fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+            exit(1);
+        }
+        
+        // Obtiene el query
+        if( !(res = mysql_store_result(&mysql)) ){
+            fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+            exit(1);
+        }
+
+        // Despliega el resultado del ID
+        if ((row = mysql_fetch_row(res))) {
+            validacion = atoi(row[0]);
+        }
+        
+        if(validacion == 0)
+        {
+            system("clear");
+            printf("El operador no está registrado.\n\n");
+        }
+    }
+
+    mysql_free_result(res);
+    system("clear");
+
+    while(contador > 0)
+    {
+        printf("¿Estás seguro?\n\n\t[S]í\t[N]o (Confirmación: %d): ", contador);
+        scanf(" %c", &confirmacion);
+        if(confirmacion == 'S' || confirmacion == 's')
+        {
+            contador--;
+            printf("\n\n");
+        }
+        else
+        {
+            contador = 0;
+        }
+    }
+
+    if(confirmacion == 'S' || confirmacion == 's')
+    {
+        // Ejecuta el query
+            sprintf(buffer, "DELETE FROM pr1_vehiculos WHERE idVehiculo = %d;", carro.id);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            else{
+                system("clear");
+                printf("¡¡¡Datos borrados con éxito!!!\n\n");
+            }
+    }
+
+    else
+    {
+        system("clear");
+        printf("Procedimiento cancelado.\n\n");
+    }
+}
+
+/**
+ * @brief Procedimiento que despliega un menú para mostrarle a la persona que ocupa el programa las opciones que
+ *        puede modificar de un vehículo de la base de datos. Una vez que se ingresa la opción a realizar, el programa
+ *        solicita los nuevos datos para realizar el cambio.
+ * @param String: buffer[]
+ * @param Struct: mysql
+ * @author Diego Bravo Pérez y Javier Lachica y Sánchez
+ * @date 13/11/2023
+*/
+
+void modificarVehiculo(char buffer[], MYSQL mysql)
+{
+    unsigned int opcion, validacion, flag;
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    vehiculo carro;
+    char ubi[DATOS];
+
+    opcion = 0;
+    flag = 0;
+    validacion = 0;
+
+    while(validacion == 0)
+    {
+        mostrarVehiculos(buffer, mysql);
+        printf("Ingresa el ID del vehículo que deseas modificar que quieras modificar: ");
+        scanf(" %d", &carro.id);
+
+        // Ejecuta el query
+        sprintf(buffer, "SELECT idVehiculo FROM pr1_vehiculos WHERE idVehiculo = %d;", carro.id);
+        if( mysql_query(&mysql, buffer) ){
+            fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+            exit(1);
+        }
+        
+        // Obtiene el query
+        if( !(res = mysql_store_result(&mysql)) ){
+            fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+            exit(1);
+        }
+
+        // Despliega el resultado del ID
+        if ((row = mysql_fetch_row(res))) {
+            validacion = atoi(row[0]);
+        }
+        
+        if(validacion == 0)
+        {
+            system("clear");
+            printf("El vehículo no está registrado.\n\n");
+        }
+
+        
+    }
+
+    mysql_free_result(res);
+    system("clear");
+
+    while(flag == 0)
+    {
+        printf("---¿Qué deseas modificar?---\n\n");
+        printf("\t1) Modelo\n\t2) Ubicación actual\n\t3) Regresar\n\n");
+        printf("Ingresa la opción que desee realizar: ");
+        scanf(" %d", &opcion);
+        switch(opcion)
+        {
+            case 1:
+            flag = 1;
+            system("clear");
+            printf("Ingresa el modelo: ");
+            scanf(" %[^\n]", carro.modelo);
+
+            // Ejecuta el query
+            sprintf(buffer, "UPDATE pr1_vehiculos SET modelo = '%s' WHERE idVehiculo = %d;", carro.modelo, carro.id);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            else{
+                system("clear");
+                printf("¡¡¡Datos actualizados con éxito!!!\n\n");
+            }
+            break;
+
+            case 2:
+            flag = 1;
+            system("clear");
+            while(validacion != 0)
+            {
+                mostrarColonias(buffer, mysql);
+                printf("Ingresa la colonia en la que está el vehículo: ");
+                scanf(" %[^\n]", ubi);
+
+                //Verifica si la colonia está registrada
+                sprintf(buffer, "CALL validarColonia('%s', @val);", ubi);
+                if( mysql_query(&mysql, buffer) ){
+                    fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                    exit(1);
+                }
+
+                sprintf(buffer, "SELECT @val;");
+                if( mysql_query(&mysql, buffer) ){
+                    fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                    exit(1);
+                }
+
+                //Captura el resultado del Query
+                if( !(res = mysql_store_result(&mysql)) ){
+                    fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+                    exit(1);
+                }
+
+                if ((row = mysql_fetch_row(res))) {
+                    validacion = atoi(row[0]);
+                }
+
+                if(validacion == 1){
+                    system("clear");
+                    printf("La colonia no está registrada.\n\n");
+                }
+            }
+
+            mysql_free_result(res);
+            system("clear");
+
+            //Busca el id de la colonia
+            sprintf(buffer, "SELECT idColonia FROM pr1_colonias WHERE colonia = '%s';", ubi);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            
+            //Captura el resultado del Query
+            if( !(res = mysql_store_result(&mysql)) ){
+                fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+                exit(1);
+            }
+
+            if ((row = mysql_fetch_row(res))) {
+                carro.idColonia = atoi(row[0]);
+            }
+            mysql_free_result(res);
+
+            // Ejecuta el query
+            sprintf(buffer, "UPDATE pr1_vehiculos SET idColonia = %d WHERE idVehiculo = %d;", carro.idColonia, carro.id);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            else
+            {
+                system("clear");
+                printf("¡¡¡Datos guardados con éxito!!!\n\n\n");
+            }
+            break;
+
+            case 3:
+            flag = 1;
+            system("clear");
+            break;
+
+            default:
+            system("clear");
+            printf("Ingresa una opción válida\n\n");
+            break;
+        }
+    }
+}
+
+/**
+ * @brief Procedimiento que borra una colonia cuando el usuario que usa el programa lo confirme 3 veces
+ * @param String: buffer[]
+ * @param Struct: mysql
+ * @author Diego Bravo Pérez y Javier Lachica y Sánchez
+ * @date 13/11/2023
+*/
+
 void borrarColonia(char buffer[], MYSQL mysql)
 {
     int contador;
@@ -256,7 +514,7 @@ void modificarColonia(char buffer[], MYSQL mysql)
             scanf(" %[^\n]", col.nombre);
 
             // Ejecuta el query
-            sprintf(buffer, "UPDATE pr1_colonias SET colonia = '%s' WHERE idColonia = '%d';", col.nombre, col.id);
+            sprintf(buffer, "UPDATE pr1_colonias SET colonia = '%s' WHERE idColonia = %d;", col.nombre, col.id);
             if( mysql_query(&mysql, buffer) ){
                 fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
                 exit(1);
@@ -1094,7 +1352,6 @@ extern void menuModificarDatos(MYSQL mysql)
     bandera = 0;
     strcpy(buffer, "\0");
 
-
     while(bandera == 0)
     {
         flag = 0;
@@ -1271,7 +1528,54 @@ extern void menuModificarDatos(MYSQL mysql)
 
             case 6:
             system("clear");
-        
+            while(flag == 0)
+            {
+                printf("---¿Qué deseas realizar?---\n\n");
+                printf(" a) Modificar Vehículo\t b) Borrar Vehículo\t c) Regresar\n\n");
+                printf("Ingresa una opción: ");
+                scanf(" %c", &opc);
+                switch(opc)
+                {
+                    case 'A':
+                    system("clear");
+                    flag = 1;
+                    modificarVehiculo(buffer, mysql);
+                    break;
+
+                    case 'a':
+                    system("clear");
+                    flag = 1;
+                    modificarVehiculo(buffer, mysql);
+                    break;
+
+                    case 'B':
+                    system("clear");
+                    flag = 1;
+                    borrarVehiculo(buffer, mysql);
+                    break;
+
+                    case 'b':
+                    system("clear");
+                    flag = 1;
+                    borrarVehiculo(buffer, mysql);
+                    break;
+
+                    case 'c':
+                    system("clear");
+                    flag = 1;
+                    break;
+
+                    case 'C':
+                    system("clear");
+                    flag = 1;
+                    break;
+
+                    default:
+                    system("clear");
+                    printf("Elige una opción correcta.\n\n");
+                    break;                    
+                }
+            }
             break;
 
             case 7:

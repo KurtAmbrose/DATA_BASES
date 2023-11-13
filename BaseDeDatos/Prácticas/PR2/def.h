@@ -38,7 +38,7 @@ typedef struct colonia
 typedef struct vehiculo
 {
     char modelo[DATOS];
-    unsigned int idColonia;
+    unsigned int idColonia, id;
 }vehiculo;
 
 typedef struct actividad
@@ -91,3 +91,5 @@ void modificarOperador(char buffer[], MYSQL mysql);
 void borrarOperador(char buffer[], MYSQL mysql);
 void modificarColonia(char buffer[], MYSQL mysql);
 void borrarColonia(char buffer[], MYSQL mysql);
+void modificarVehiculo(char buffer[], MYSQL mysql);
+void borrarVehiculo(char buffer[], MYSQL mysql);
