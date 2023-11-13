@@ -32,7 +32,7 @@ typedef struct persona
 typedef struct colonia
 {
     char nombre[DATOS], alcaldia[DATOS];
-    unsigned int cp;
+    unsigned int cp, id;
 }colonia;
 
 typedef struct vehiculo
@@ -89,3 +89,5 @@ void modificarAjustador(char buffer[], MYSQL mysql);
 void borrarAjustador(char buffer[], MYSQL mysql);
 void modificarOperador(char buffer[], MYSQL mysql);
 void borrarOperador(char buffer[], MYSQL mysql);
+void modificarColonia(char buffer[], MYSQL mysql);
+void borrarColonia(char buffer[], MYSQL mysql);
