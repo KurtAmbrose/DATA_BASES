@@ -367,3 +367,52 @@ extern void mostrarActividad(char buffer[], MYSQL mysql)
     }
     mysql_free_result(res);
 }
+
+/**
+ * @brief Procedimiento que muestra las llamadas que atendieron los operadores para atender siniestros, registradas en la base de datos
+ * @param String: buffer[]
+ * @param Struct: mysql
+ * @author Diego Bravo Pérez y Javier Lachica y Sánchez
+ * @date 14/11/2023
+*/
+
+extern void mostrarLlamadas(char buffer[], MYSQL mysql)
+{
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    unsigned int i;
+
+    // Ejecuta el query
+    sprintf(buffer, "SELECT idOS, idSiniestro, CONCAT(nombre, ' ', ap_paterno, ' ', ap_materno) FROM pr1_O_S LEFT JOIN pr1_operadores USING(idOperador);");
+    if( mysql_query(&mysql,buffer) ){
+        fprintf(stderr,"Error processing query \"%s\" Error: %s\n",buffer,mysql_error(&mysql));
+        exit(1);
+    }
+
+    // Obtiene el query
+    if( !(res = mysql_store_result(&mysql)) ){
+        fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+        exit(1);
+    }
+
+    // Despliega el resultado del query
+    printf("---LLAMADAS REGISTRADAS----\n\n");
+    while( (row = mysql_fetch_row(res)) )
+    {
+        i = 0;
+
+        for( i=0 ; i < mysql_num_fields(res); i++ )
+        {
+            if(row[i] != NULL)
+            {
+              printf("|%s\n",row[i]);
+            }
+            else
+            {
+              printf(" \n");
+            }
+        }
+        fputc('\n',stdout);
+    }
+    mysql_free_result(res);
+}

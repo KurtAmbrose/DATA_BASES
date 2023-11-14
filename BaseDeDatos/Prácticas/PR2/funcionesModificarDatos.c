@@ -48,10 +48,274 @@
  * 
  * @date Fecha de creación: 10 de Noviembre del 2023
  * 
- * @date Última modificación: 13 de Noviembre del 2023
+ * @date Última modificación: 14 de Noviembre del 2023
 */
 
 #include "def.h"
+
+/**
+ * @brief Procedimiento que borra una colonia cuando el usuario que usa el programa lo confirme 3 veces
+ * @param String: buffer[]
+ * @param Struct: mysql
+ * @author Diego Bravo Pérez y Jjavier Lachica Sánchez 
+ * @date 14/11/2023
+*/
+
+void borrarLlamada(char buffer[], MYSQL mysql)
+{
+    int contador;
+    unsigned int validacion;
+    char confirmacion;
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    siniestro llamada;
+
+    contador = 3;
+    validacion = 0;
+
+    while(validacion == 0)
+    {
+        mostrarLlamadas(buffer, mysql);
+        printf("Ingresa el ID de la llamada que quieras borrar: ");
+        scanf(" %d", &llamada.idLlamada);
+
+        // Ejecuta el query
+        sprintf(buffer, "SELECT idOS FROM pr1_O_S WHERE idOS = %d;", llamada.idLlamada);
+        if( mysql_query(&mysql, buffer) ){
+            fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+            exit(1);
+        }
+        
+        // Obtiene el query
+        if( !(res = mysql_store_result(&mysql)) ){
+            fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+            exit(1);
+        }
+
+        // Despliega el resultado del ID
+        if ((row = mysql_fetch_row(res))) {
+            validacion = atoi(row[0]);
+        }
+        
+        if(validacion == 0)
+        {
+            system("clear");
+            printf("La llamada no está registrada.\n\n");
+        }
+    }
+
+    mysql_free_result(res);
+    system("clear");
+
+    while(contador > 0)
+    {
+        printf("¿Estás seguro?\n\n\t[S]í\t[N]o (Confirmación: %d): ", contador);
+        scanf(" %c", &confirmacion);
+        if(confirmacion == 'S' || confirmacion == 's')
+        {
+            contador--;
+            printf("\n\n");
+        }
+        else
+        {
+            contador = 0;
+        }
+    }
+
+    if(confirmacion == 'S' || confirmacion == 's')
+    {
+        // Ejecuta el query
+            sprintf(buffer, "DELETE FROM pr1_O_S WHERE idOS = %d;", llamada.idLlamada);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            else{
+                system("clear");
+                printf("¡¡¡Datos borrados con éxito!!!\n\n");
+            }
+    }
+
+    else
+    {
+        system("clear");
+        printf("Procedimiento cancelado.\n\n");
+    }
+}
+
+/**
+ * @brief Procedimiento que despliega un menú para mostrarle a la persona que ocupa el programa las opciones que
+ *        puede modificar de un vehículo de la base de datos. Una vez que se ingresa la opción a realizar, el programa
+ *        solicita los nuevos datos para realizar el cambio.
+ * @param String: buffer[]
+ * @param Struct: mysql
+ * @author Diego Bravo Pérez y Javier Lachica y Sánchez
+ * @date 14/11/2023
+*/
+
+void modificarLlamada(char buffer[], MYSQL mysql)
+{
+    unsigned int opcion, validacion, flag;
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    siniestro llamada;
+
+    opcion = 0;
+    validacion = 0;
+    flag = 0;
+
+    while(validacion == 0)
+    {
+        mostrarLlamadas(buffer, mysql);
+        printf("Ingresa el ID de la llamada que quieras modificar: ");
+        scanf(" %d", &llamada.idLlamada);
+
+        // Ejecuta el query
+        sprintf(buffer, "SELECT idOS FROM pr1_O_S WHERE idOS = %d;", llamada.idLlamada);
+        if( mysql_query(&mysql, buffer) ){
+            fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+            exit(1);
+        }
+        
+        // Obtiene el query
+        if( !(res = mysql_store_result(&mysql)) ){
+            fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+            exit(1);
+        }
+
+        // Despliega el resultado del ID
+        if ((row = mysql_fetch_row(res))) {
+            validacion = atoi(row[0]);
+        }
+        
+        if(validacion == 0)
+        {
+            system("clear");
+            printf("La llamada no está registrada.\n\n");
+        }
+    }
+
+    mysql_free_result(res);
+    system("clear");
+
+    while(flag == 0)
+    {
+        printf("---¿Qué deseas modificar?---\n\n");
+        printf("\t1) Operador que atendió la llamada\n\t2) Siniestro atendido\n\t3) Regresar\n\n");
+        printf("Ingresa la opción que desee realizar: ");
+        scanf(" %d", &opcion);
+        switch(opcion)
+        {
+            case 1:
+            flag = 1;
+            system("clear");
+            validacion = 0;
+            while(validacion == 0)
+            {
+                mostrarOperadores(buffer, mysql);
+                printf("Ingresa el ID del operador que deseas modificar: ");
+                scanf(" %d", &llamada.idOperador);
+
+                //Verifica si la colonia está registrada
+                sprintf(buffer, "SELECT idOperador FROM pr1_operadores WHERE idOperador = %d", llamada.idOperador);
+                if( mysql_query(&mysql, buffer) ){
+                    fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                    exit(1);
+                }
+
+                //Captura el resultado del Query
+                if( !(res = mysql_store_result(&mysql)) ){
+                    fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+                    exit(1);
+                }
+
+                if ((row = mysql_fetch_row(res))) {
+                    validacion = atoi(row[0]);
+                }
+
+                if(validacion == 0){
+                    system("clear");
+                    printf("El operador no está registrado.\n\n");
+                }
+            }
+
+            mysql_free_result(res);
+            system("clear");
+
+            // Ejecuta el query
+            sprintf(buffer, "UPDATE pr1_O_S SET idOperador = %d WHERE idOS = %d;", llamada.idOperador, llamada.idLlamada);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            else
+            {
+                system("clear");
+                printf("¡¡¡Datos guardados con éxito!!!\n\n\n");
+            }
+            break;
+
+            case 2:
+            flag = 1;
+            system("clear");
+            validacion = 0;
+            while(validacion == 0)
+            {
+                mostrarSiniestros(buffer, mysql);
+                printf("Ingresa el ID del siniestro que deseas modificar: ");
+                scanf(" %d", &llamada.idSiniestro);
+
+                //Verifica si la colonia está registrada
+                sprintf(buffer, "SELECT idSiniestro FROM pr1_O_S WHERE idSiniestro = %d", llamada.idSiniestro);
+                if( mysql_query(&mysql, buffer) ){
+                    fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                    exit(1);
+                }
+
+                //Captura el resultado del Query
+                if( !(res = mysql_store_result(&mysql)) ){
+                    fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+                    exit(1);
+                }
+
+                if ((row = mysql_fetch_row(res))) {
+                    validacion = atoi(row[0]);
+                }
+
+                if(validacion == 0){
+                    system("clear");
+                    printf("El siniestro no está registrado.\n\n");
+                }
+            }
+
+            mysql_free_result(res);
+            system("clear");
+
+            // Ejecuta el query
+            sprintf(buffer, "UPDATE pr1_O_S SET idSiniestro = %d WHERE idOS = %d;", llamada.idSiniestro, llamada.idLlamada);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            else
+            {
+                system("clear");
+                printf("¡¡¡Datos guardados con éxito!!!\n\n\n");
+            }
+            break;
+
+            case 3:
+            flag = 1;
+            system("clear");
+            break;
+
+            default:
+            system("clear");
+            printf("Ingresa una opción válida\n\n");
+            break;
+        }
+    }
+}
 
 /**
  * @brief Procedimiento que borra una colonia cuando el usuario que usa el programa lo confirme 3 veces
@@ -1882,6 +2146,54 @@ extern void menuModificarDatos(MYSQL mysql)
 
             case 5:
             system("clear");
+            while(flag == 0)
+            {
+                printf("---¿Qué deseas realizar?---\n\n");
+                printf(" a) Modificar registro de llamada\t b) Borrar registro de llamada\t c) Regresar\n\n");
+                printf("Ingresa una opción: ");
+                scanf(" %c", &opc);
+                switch(opc)
+                {
+                    case 'A':
+                    system("clear");
+                    flag = 1;
+                    modificarLlamada(buffer, mysql);
+                    break;
+
+                    case 'a':
+                    system("clear");
+                    flag = 1;
+                    modificarLlamada(buffer, mysql);
+                    break;
+
+                    case 'B':
+                    system("clear");
+                    flag = 1;
+                    borrarLlamada(buffer, mysql);
+                    break;
+
+                    case 'b':
+                    system("clear");
+                    flag = 1;
+                    borrarLlamada(buffer, mysql);
+                    break;
+
+                    case 'c':
+                    system("clear");
+                    flag = 1;
+                    break;
+
+                    case 'C':
+                    system("clear");
+                    flag = 1;
+                    break;
+
+                    default:
+                    system("clear");
+                    printf("Elige una opción correcta.\n\n");
+                    break;                    
+                }
+            }
             break;
 
             case 6:
