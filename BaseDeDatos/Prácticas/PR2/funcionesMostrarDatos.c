@@ -285,7 +285,7 @@ extern void mostrarSiniestros(char buffer[], MYSQL mysql)
     unsigned int i;
 
     // Ejecuta el query
-    sprintf(buffer, "SELECT idSiniestro, fecha, hora FROM pr1_siniestros;");
+    sprintf(buffer, "SELECT idSiniestro, fecha, hora, CONCAT(nombre, ' ', ap_paterno, ' ', ap_materno), colonia FROM pr1_siniestros LEFT JOIN pr1_usuarios USING(idUsuario) LEFT JOIN pr1_colonias USING(idColonia);");
     if( mysql_query(&mysql,buffer) ){
         fprintf(stderr,"Error processing query \"%s\" Error: %s\n",buffer,mysql_error(&mysql));
         exit(1);

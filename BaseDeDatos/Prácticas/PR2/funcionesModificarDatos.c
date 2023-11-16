@@ -200,6 +200,7 @@ void modificarSiniestro(char buffer[], MYSQL mysql)
     siniestro registro;
     int verifica;
     char final;
+    char ubi[DATOS];
     
     opcion = 0;
     validacion = 0;
@@ -432,13 +433,118 @@ void modificarSiniestro(char buffer[], MYSQL mysql)
             break;
 
             case 2:
-            flag = 1;
             system("clear");
+            validacion = 0;
+            while(validacion == 0)
+            {
+                mostrarUsuarios(buffer, mysql);
+                printf("Ingresa el ID del nuevo usuario que quieras modificar: ");
+                scanf(" %d", &registro.idUsuario);
+                sprintf(buffer, "SELECT idUsuario FROM pr1_usuarios WHERE idUsuario = %d", registro.idUsuario);
+                if( mysql_query(&mysql, buffer) ){
+                                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                                exit(1);
+                }
+                // Obtiene el query
+                if( !(res = mysql_store_result(&mysql)) ){
+                    fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+                    exit(1);
+                }
+
+                // Despliega el resultado del ID
+                if ((row = mysql_fetch_row(res))) {
+                    validacion = atoi(row[0]);
+                }
+                
+                if(validacion == 0)
+                {
+                    system("clear");
+                    printf("El usuario no está registrado.\n\n");
+                }
+            }
+            mysql_free_result(res);
+            
+            sprintf(buffer, "UPDATE pr1_siniestros SET idUsuario = %d WHERE idSiniestro = %d", registro.idUsuario, registro.idSiniestro);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            else{
+                system("clear");
+                printf("¡¡¡Datos actualizados con éxito!!!\n\n");
+            }
             break;
 
             case 3:
-            flag = 1;
             system("clear");
+            validacion = 1;
+            while(validacion != 0)
+            {
+                mostrarColonias(buffer, mysql);
+                printf("Ingresa el nombre de la colonia: ");
+                scanf(" %[^\n]", ubi);
+
+                //Verifica si la colonia está registrada
+                sprintf(buffer, "CALL validarColonia('%s', @val);", ubi);
+                if( mysql_query(&mysql, buffer) ){
+                    fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                    exit(1);
+                }
+
+                sprintf(buffer, "SELECT @val;");
+                if( mysql_query(&mysql, buffer) ){
+                    fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                    exit(1);
+                }
+
+                //Captura el resultado del Query
+                if( !(res = mysql_store_result(&mysql)) ){
+                    fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+                    exit(1);
+                }
+
+                if ((row = mysql_fetch_row(res))) {
+                    validacion = atoi(row[0]);
+                }
+
+                if(validacion == 1){
+                    system("clear");
+                    printf("La colonia no está registrada.\n\n");
+                }
+            }
+
+            system("clear");
+            mysql_free_result(res);
+
+            //Busca el id de la colonia
+            sprintf(buffer, "SELECT idColonia FROM pr1_colonias WHERE colonia = '%s';", ubi);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            
+            //Captura el resultado del Query
+            if( !(res = mysql_store_result(&mysql)) ){
+                fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+                exit(1);
+            }
+
+            if ((row = mysql_fetch_row(res))) {
+                registro.idColonia = atoi(row[0]);
+            }
+            mysql_free_result(res);
+
+            // Ejecuta el query
+            sprintf(buffer, "UPDATE pr1_siniestros SET idColonia = %d WHERE idSiniestro = %d;", registro.idColonia, registro.idSiniestro);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            else
+            {
+                system("clear");
+                printf("¡¡¡Datos guardados con éxito!!!\n\n\n");
+            }
             break;
 
             case 4:
@@ -641,7 +747,6 @@ void modificarLlamada(char buffer[], MYSQL mysql)
             }
 
             mysql_free_result(res);
-            system("clear");
 
             // Ejecuta el query
             sprintf(buffer, "UPDATE pr1_O_S SET idOperador = %d WHERE idOS = %d;", llamada.idOperador, llamada.idLlamada);
@@ -690,7 +795,6 @@ void modificarLlamada(char buffer[], MYSQL mysql)
             }
 
             mysql_free_result(res);
-            system("clear");
 
             // Ejecuta el query
             sprintf(buffer, "UPDATE pr1_O_S SET idSiniestro = %d WHERE idOS = %d;", llamada.idSiniestro, llamada.idLlamada);
@@ -1221,8 +1325,8 @@ void modificarVehiculo(char buffer[], MYSQL mysql)
         
     }
 
-    mysql_free_result(res);
     system("clear");
+    mysql_free_result(res);
 
     while(flag == 0)
     {
@@ -1289,7 +1393,6 @@ void modificarVehiculo(char buffer[], MYSQL mysql)
             }
 
             mysql_free_result(res);
-            system("clear");
 
             //Busca el id de la colonia
             sprintf(buffer, "SELECT idColonia FROM pr1_colonias WHERE colonia = '%s';", ubi);
