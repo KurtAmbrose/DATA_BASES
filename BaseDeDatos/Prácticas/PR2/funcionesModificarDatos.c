@@ -54,6 +54,94 @@
 #include "def.h"
 
 /**
+ * @brief Procedimiento que borra una colonia cuando el usuario que usa el programa lo confirme 3 veces
+ * 
+*/
+
+void borrarSiniestro(char buffer[], MYSQL mysql)
+{
+    int contador;
+    unsigned int validacion;
+    char confirmacion;
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    siniestro registro;
+
+    contador = 3;
+    validacion = 0;
+
+    while(validacion == 0)
+    {
+        mostrarSiniestros(buffer, mysql);
+        printf("Ingresa el ID del siniestro que quieras borrar: ");
+        scanf(" %d", &registro.idSiniestro);
+
+        // Ejecuta el query
+        sprintf(buffer, "SELECT idSiniestro FROM pr1_siniestros WHERE idSiniestro = %d;", registro.idSiniestro);
+        if( mysql_query(&mysql, buffer) ){
+            fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+            exit(1);
+        }
+        
+        // Obtiene el query
+        if( !(res = mysql_store_result(&mysql)) ){
+            fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+            exit(1);
+        }
+
+        // Despliega el resultado del ID
+        if ((row = mysql_fetch_row(res))) {
+            validacion = atoi(row[0]);
+        }
+        
+        if(validacion == 0)
+        {
+            system("clear");
+            printf("El siniestro no está registrado.\n\n");
+        }
+    }
+
+    mysql_free_result(res);
+    system("clear");
+
+    while(contador > 0)
+    {
+        printf("¿Estás seguro?\n\n\t[S]í\t[N]o (Confirmación: %d): ", contador);
+        scanf(" %c", &confirmacion);
+        if(confirmacion == 'S' || confirmacion == 's')
+        {
+            contador--;
+            printf("\n\n");
+        }
+        else
+        {
+            contador = 0;
+        }
+    }
+
+    if(confirmacion == 'S' || confirmacion == 's')
+    {
+        // Ejecuta el query
+            sprintf(buffer, "DELETE FROM pr1_siniestros WHERE idSiniestro = %d;", registro.idSiniestro);
+            if( mysql_query(&mysql, buffer) ){
+                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                exit(1);
+            }
+            else{
+                system("clear");
+                printf("¡¡¡Datos borrados con éxito!!!\n\n");
+            }
+    }
+
+    else
+    {
+        system("clear");
+        printf("Procedimiento cancelado.\n\n");
+    }
+    
+}
+
+/**
  * @brief Procedimiento que muestra la información necesaria para realizar de manera correcta la modificación del ajustador, fecha y hora 
  * @param Integer: num_args
  * @param String: buffer[]
@@ -2669,13 +2757,13 @@ extern void menuModificarDatos(MYSQL mysql)
                     case 'B':
                     system("clear");
                     flag = 1;
-        
+                    borrarSiniestro(buffer, mysql);
                     break;
 
                     case 'b':
                     system("clear");
                     flag = 1;
-        
+                    borrarSiniestro(buffer, mysql);
                     break;
 
                     case 'c':

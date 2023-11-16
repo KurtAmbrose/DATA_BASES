@@ -99,3 +99,4 @@ void modificarLlamada(char buffer[], MYSQL mysql);
 void borrarLlamada(char buffer[], MYSQL mysql);
 void modificarSiniestro(char buffer[], MYSQL mysql);
 void mostrarTiempoPasoaPaso(char buffer[], MYSQL mysql, int *ver, int num_args, ...);
+void borrarSiniestro(char buffer[], MYSQL mysql);
