@@ -3,7 +3,7 @@
 */
 
 #include <stdio.h>
-#include <stdio_ext.h>
+#include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
 #include <mysql/mysql.h>
@@ -97,3 +97,5 @@ void modificarActividad(char buffer[], MYSQL mysql);
 void borrarActividad(char buffer[], MYSQL mysql);
 void modificarLlamada(char buffer[], MYSQL mysql);
 void borrarLlamada(char buffer[], MYSQL mysql);
+void modificarSiniestro(char buffer[], MYSQL mysql);
+void mostrarTiempoPasoaPaso(char buffer[], MYSQL mysql, int *ver, int num_args, ...);

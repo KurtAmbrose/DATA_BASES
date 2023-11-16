@@ -47,7 +47,7 @@ END$
 
 DELIMITER ;
 
---- PORCEDIMIENTO QUE VERIFICA SI LAS HORAS INGRESADAS ESTÁN EN ÓRDEN CORRECTO
+--- PROCEDIMIENTO QUE VERIFICA SI LAS HORAS INGRESADAS ESTÁN EN ÓRDEN CORRECTO
 
 DROP PROCEDURE IF EXISTS validarRango;
 
@@ -61,6 +61,39 @@ BEGIN
     ELSE
         SET validacion = 0;
     END IF;
+END$
+
+DELIMITER ;
+
+
+--- PROCEDIMIENTO QUE VERIFICA SI LA HORA INGRESADA PERMANECE EN ALGUNO DE LOS RANGOS ---
+
+DROP PROCEDURE IF EXISTS validarHora2;
+
+DELIMITER $
+CREATE PROCEDURE validarHora2(IN dato TIME, IN dato2 DATE, OUT validacion INT)
+
+BEGIN
+    DECLARE horain, horafin TIME;
+    DECLARE curs CURSOR FOR SELECT hora_inicio, hora_fin FROM pr1_A_V WHERE fecha = dato2 AND hora_inicio <= dato AND hora_fin >= dato;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET validacion = 0;
+
+    OPEN curs;
+    SET validacion = 1;
+    FETCH curs INTO horain, horafin;
+    IF horain > dato OR horafin < dato THEN
+        SET validacion = 0;
+        WHILE horain IS NOT NULL OR validacion != 1 DO
+            IF horain <= dato AND horafin >= dato THEN 
+                SET validacion = 1;
+            ELSE
+                FETCH curs INTO horain, horafin;
+                SET validacion = 0;
+            END IF;
+        END WHILE;
+    END IF;
+        
+    CLOSE curs;
 END$
 
 DELIMITER ;

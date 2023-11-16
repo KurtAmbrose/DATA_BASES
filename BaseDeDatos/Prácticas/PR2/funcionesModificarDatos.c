@@ -48,10 +48,411 @@
  * 
  * @date Fecha de creación: 10 de Noviembre del 2023
  * 
- * @date Última modificación: 14 de Noviembre del 2023
+ * @date Última modificación: 16 de Noviembre del 2023
 */
 
 #include "def.h"
+
+/**
+ * @brief Procedimiento que muestra la información necesaria para realizar de manera correcta la modificación del ajustador, fecha y hora 
+ * @param Integer: num_args
+ * @param String: buffer[]
+ * @param Struct: mysql
+ * @param Pointer: *ver
+ * @author Diego Bravo Pérez y Javier Lachica y Sánchez
+ * @date 14/11/2023
+*/
+
+void mostrarTiempoPasoaPaso(char buffer[], MYSQL mysql, int *ver, int num_args, ...)
+{
+    //mostrarTiempo(char *query, MYSQL mysql, char *fecha, char *hora)
+    va_list args;
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    char **cadena;
+    int i;
+
+    cadena = (char **)malloc(sizeof(char **));
+    if(cadena == NULL)
+    {
+        system("clear");
+        printf("Memoria insuficiente.\n\n");
+        exit(1);
+    }
+
+    va_start(args, num_args);
+
+    for (i = 0; i < num_args; i++) {
+        *(cadena + i) = va_arg(args, char *);
+    }
+
+    va_end(args);
+
+    //if(!hora)
+    if(num_args == 1)
+    {
+        sprintf(buffer, "SELECT idAV, CONCAT(nombre, ' ', ap_paterno, ' ', ap_materno), hora_inicio, hora_fin FROM pr1_A_V LEFT JOIN pr1_ajustadores USING(idAjustador) WHERE fecha = '%s';", cadena[0]);
+        if( mysql_query(&mysql, buffer) ){
+            fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+            exit(1);
+        }
+
+        
+        // Obtiene el query
+        if( !(res = mysql_store_result(&mysql)) ){
+            fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+            exit(1);
+        }
+
+        if (mysql_field_count(&mysql) == 0)
+        {
+            printf("No hay datos existentes.\n\n");
+            *ver = 1;
+        }
+
+        else
+        {
+            // Despliega el resultado del query
+            printf("---JORNADAS REGISTRADAS EL DÍA %s---\n\n", cadena[0]);
+            while( (row = mysql_fetch_row(res)) )
+            {
+                i = 0;
+
+                for( i=0 ; i < mysql_num_fields(res); i++ )
+                {
+                    if(row[i] != NULL)
+                    {
+                    printf("|%s\n",row[i]);
+                    }
+                    else
+                    {
+                    printf(" \n");
+                    }
+                }
+                fputc('\n',stdout);
+            }
+        }
+        
+    }
+
+    else
+    {
+        sprintf(buffer, "SELECT CONCAT(nombre, ' ', ap_paterno, ' ', ap_materno), idAjustador FROM pr1_A_V LEFT JOIN pr1_ajustadores USING(idAjustador) WHERE fecha = '%s' AND hora_inicio <= '%s' AND hora_fin >= '%s';", cadena[0], cadena[1], cadena[1]);
+        if( mysql_query(&mysql, buffer) ){
+            fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+            exit(1);
+        }
+        
+        // Obtiene el query
+        if( !(res = mysql_store_result(&mysql)) ){
+            fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+            exit(1);
+        }
+
+        if(mysql_field_count(&mysql) == 0)
+        {
+            printf("No hay datos existentes\n\n");
+            *ver = 1;
+
+        }
+        else
+        {
+            // Despliega el resultado del query
+                printf("---JORNADAS REGISTRADAS EL DÍA %s DONDE EXISTE LA HORA %s---\n\n", cadena[0], cadena[1]);
+                while( (row = mysql_fetch_row(res)) )
+                {
+                    i = 0;
+
+                    for( i=0 ; i < mysql_num_fields(res); i++ )
+                    {
+                        if(row[i] != NULL)
+                        {
+                        printf("|%s\n",row[i]);
+                        }
+                        else
+                        {
+                        printf(" \n");
+                        }
+                    }
+                    fputc('\n',stdout);
+                }
+        }
+    }
+        
+    mysql_free_result(res);
+}
+
+/**
+ * @brief Procedimiento que despliega un menú para mostrarle a la persona que ocupa el programa las opciones que
+ *        puede modificar de un  de la base de datos. Una vez que se ingresa la opción a realizar, el programa
+ *        solicita los nuevos datos para realizar el cambio.
+ * @param String: buffer[]
+ * @param Struct: mysql
+ * @author Diego Bravo Pérez y Javier Lachica y Sánchez
+ * @date 14/11/2023
+*/
+
+void modificarSiniestro(char buffer[], MYSQL mysql)
+{
+    unsigned int opcion, validacion, flag, conf;
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    siniestro registro;
+    int verifica;
+    char final;
+    
+    opcion = 0;
+    validacion = 0;
+    flag = 0;
+    conf = 0;
+    verifica = 0;
+
+    while(validacion == 0)
+    {
+        mostrarSiniestros(buffer, mysql);
+        printf("Ingresa el ID del siniestro que quieras modificar: ");
+        scanf(" %d", &registro.idSiniestro);
+
+        // Ejecuta el query
+        sprintf(buffer, "SELECT idSiniestro FROM pr1_siniestros WHERE idSiniestro = %d;", registro.idSiniestro);
+        if( mysql_query(&mysql, buffer) ){
+            fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+            exit(1);
+        }
+        
+        // Obtiene el query
+        if( !(res = mysql_store_result(&mysql)) ){
+            fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+            exit(1);
+        }
+
+        // Despliega el resultado del ID
+        if ((row = mysql_fetch_row(res))) {
+            validacion = atoi(row[0]);
+        }
+        
+        if(validacion == 0)
+        {
+            system("clear");
+            printf("El siniestro no está registrado.\n\n");
+        }
+    }
+
+    mysql_free_result(res);
+    system("clear");
+
+    while(flag == 0)
+    {
+        printf("---¿Qué deseas modificar?---\n\n");
+        printf("\t1) Fecha, Hora y Ajustador\n\t2) Usuario\n\t3) Colonia\n\t4) Regresar\n\n");
+        printf("Ingresa la opción que desee realizar: ");
+        scanf(" %d", &opcion);
+        switch(opcion)
+        {
+            case 1:
+            flag = 1;
+            strcpy(registro.fecha, "\0");
+            strcpy(registro.hora, "\0");
+            system("clear");
+            while(flag == 1)
+            {
+                printf("---¿Cuál de estas opciones?---\n\n");
+                printf("\t1) Fecha en la que ocurrió el siniestro\n\t2) Hora en la que ocurrió el siniestro\n\t3) Ajustador que atendió el siniestro\n\t4) Confirmar datos\n\n");
+                printf("Ingresa la opción que desee realizar: ");
+                scanf(" %d", &opcion);
+
+                switch(opcion)
+                {
+                    case 1:
+                    system("clear");
+                    printf("Ingresa la fecha con el formato 'AAAA-MM-DD' (incluyendo los '-'): ");
+                    scanf(" %[^\n]", registro.fecha);
+                    system("clear");
+                    conf = 1;
+                    break;
+
+                    case 2:
+                    system("clear");
+                    if(conf == 0)
+                    {
+                        system("clear");
+                        printf("Debes de ingresar primero la fecha.\n\n");
+                    }
+                    else
+                    {
+                        validacion = 0;
+                        while(validacion == 0)
+                        {
+                            mostrarTiempoPasoaPaso(buffer, mysql, &verifica, 1, registro.fecha);
+                            printf("Ingresa la hora con el formato 'HH:MM:DD' (incluyendo los ':'): ");
+                            scanf(" %[^\n]", registro.hora);
+
+                            // Ejecuta el query
+                            sprintf(buffer, "CALL validarHora2('%s', '%s', @val);", registro.hora, registro.fecha);
+                            if( mysql_query(&mysql, buffer) ){
+                                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                                exit(1);
+                            }
+
+                            sprintf(buffer, "SELECT @val;");
+                            if( mysql_query(&mysql, buffer) ){
+                                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                                exit(1);
+                            }
+                            
+                            // Obtiene el query
+                            if( !(res = mysql_store_result(&mysql)) ){
+                                fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+                                exit(1);
+                            }
+
+                            // Despliega el resultado del ID
+                            if ((row = mysql_fetch_row(res))) {
+                                validacion = atoi(row[0]);
+                            }
+                            
+                            if(validacion == 0)
+                            {
+                                system("clear");
+                                printf("La hora no está en el rango.\n\n");
+                            }
+                        }
+
+                        mysql_free_result(res);
+                        system("clear");
+                        conf = 2;
+                    }
+                    break;
+
+                    case 3:
+                    system("clear");
+                    if(conf == 1 || conf == 0)
+                    {
+                        printf("Debes de ingresar primero la hora.\n\n");
+                    }
+                    else
+                    {
+                        validacion = 0;
+                        while(validacion == 0)
+                        {
+                            mostrarTiempoPasoaPaso(buffer, mysql, &verifica, 2, registro.fecha, registro.hora);
+                            if(verifica == 1)
+                            {
+                                printf("No hay datos existentes, intentelo de nuevo.\n\nPresione \"enter para regresar\" -> ");
+                                getchar();
+                                getchar();
+                                system("clear");
+                                validacion = 1;
+                                conf = 0;
+                            }
+                            else
+                            {
+                                printf("Ingresa el ID del ajustador: ");
+                                scanf(" %d", &registro.idAjustador);
+
+                                // Ejecuta el query
+                                sprintf(buffer, "SELECT idAjustador FROM pr1_A_V WHERE idAjustador = %d AND fecha = '%s' AND hora_inicio <= '%s' AND hora_fin >= '%s';", registro.idAjustador, registro.fecha, registro.hora, registro.hora);
+                                if( mysql_query(&mysql, buffer) ){
+                                    fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                                    exit(1);
+                                }
+                                
+                                // Obtiene el query
+                                if( !(res = mysql_store_result(&mysql)) ){
+                                    fprintf(stderr,"Error storing results Error: %s\n",mysql_error(&mysql));
+                                    exit(1);
+                                }
+
+                                // Despliega el resultado del ID
+                                if ((row = mysql_fetch_row(res))) {
+                                    validacion = atoi(row[0]);
+                                }
+                                
+                                if(validacion == 0)
+                                {
+                                    system("clear");
+                                    printf("El ajustador ingresado no trabajó ese día.\n\n");
+                                }
+                            }
+
+                        }
+                        mysql_free_result(res);
+                        system("clear");
+                        conf=3;
+                    }
+                    break;
+
+                    case 4:
+                    system("clear");
+                    if(conf != 3)
+                    {
+                        printf("No se han ingresado los datos suficientes para realizar la insersión.\n\n");
+                    }
+                    else
+                    {
+                        flag = 0;
+
+                        sprintf(buffer, "UPDATE pr1_siniestros SET fecha = '%s' WHERE idSiniestro = %d", registro.fecha, registro.idSiniestro);
+                        if( mysql_query(&mysql, buffer) ){
+                            fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                            exit(1);
+                        }
+                        else
+                        {
+                            sprintf(buffer, "UPDATE pr1_siniestros SET hora = '%s' WHERE idSiniestro = %d", registro.hora, registro.idSiniestro);
+                            if( mysql_query(&mysql, buffer) ){
+                                fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                                exit(1);
+                            }
+                            else
+                            {
+                                sprintf(buffer, "UPDATE pr1_siniestros SET idAjustador = %d WHERE idSiniestro = %d", registro.idAjustador, registro.idSiniestro);
+                                if( mysql_query(&mysql, buffer) ){
+                                    fprintf(stderr,"Error processing query \"%s\" \nError: %s\n", buffer, mysql_error(&mysql));
+                                    exit(1);
+                                }
+                                else
+                                {
+                                    system("clear");
+                                    printf("¡¡¡Datos actualizados con éxito!!!\n\n");
+                                }
+                            }
+                        }
+
+                    }
+                    break;
+
+                    default:
+                    system("clear");
+                    printf("Ingresa una opción correcta.\n\n");
+                    break;
+
+                }
+            }
+            break;
+
+            case 2:
+            flag = 1;
+            system("clear");
+            break;
+
+            case 3:
+            flag = 1;
+            system("clear");
+            break;
+
+            case 4:
+            flag = 1;
+            system("clear");
+            break;
+
+            default:
+            system("clear");
+            printf("Ingresa una opción válida\n\n");
+            break;
+        }
+    }
+}
 
 /**
  * @brief Procedimiento que borra una colonia cuando el usuario que usa el programa lo confirme 3 veces
@@ -475,9 +876,9 @@ void modificarActividad(char buffer[], MYSQL mysql)
             system("clear");
             while(validacion != 0)
             {
-                printf("Ingresa la hora de inicio con el siguiente formato HH:MM:SS (incluyendo los ':'): ");
+                printf("Ingresa la hora de inicio con el siguiente formato 'HH:MM:SS' (incluyendo los ':'): ");
                 scanf(" %[^\n]", jornada.horaInicio);
-                printf("Ingresa la hora de fin con el siguiente formato HH:MM:SS (incluyendo los ':'): ");
+                printf("Ingresa la hora de fin con el siguiente formato 'HH:MM:SS' (incluyendo los ':'): ");
                 scanf(" %[^\n]", jornada.horaFin);
 
                 // Ejecuta el query
@@ -534,7 +935,7 @@ void modificarActividad(char buffer[], MYSQL mysql)
             case 2:
             flag = 1;
             system("clear");
-            printf("Ingresa la fecha con el formato AAAA-MM-DD (incluyendo los '-'): ");
+            printf("Ingresa la fecha con el formato 'AAAA-MM-DD' (incluyendo los '-'): ");
             scanf(" %[^\n]", jornada.fecha);
 
             // Ejecuta el query
@@ -2142,6 +2543,54 @@ extern void menuModificarDatos(MYSQL mysql)
 
             case 4:
             system("clear");
+            while(flag == 0)
+            {
+                printf("---¿Qué deseas realizar?---\n\n");
+                printf(" a) Modificar siniestro existente\t b) Borrar siniestro existente\t c) Regresar\n\n");
+                printf("Ingresa una opción: ");
+                scanf(" %c", &opc);
+                switch(opc)
+                {
+                    case 'A':
+                    system("clear");
+                    flag = 1;
+                    modificarSiniestro(buffer, mysql);
+                    break;
+
+                    case 'a':
+                    system("clear");
+                    flag = 1;
+                    modificarSiniestro(buffer, mysql);
+                    break;
+
+                    case 'B':
+                    system("clear");
+                    flag = 1;
+        
+                    break;
+
+                    case 'b':
+                    system("clear");
+                    flag = 1;
+        
+                    break;
+
+                    case 'c':
+                    system("clear");
+                    flag = 1;
+                    break;
+
+                    case 'C':
+                    system("clear");
+                    flag = 1;
+                    break;
+
+                    default:
+                    system("clear");
+                    printf("Elige una opción correcta.\n\n");
+                    break;                    
+                }
+            }
             break;
 
             case 5:
