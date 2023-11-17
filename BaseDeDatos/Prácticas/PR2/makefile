@@ -4,8 +4,11 @@ all: practica2.exe clean
 
 .PHONY: clean
 
-practica2.exe: main.o funcionesInsertarDatos.o funcionesMostrarDatos.o funcionesModificarDatos.o
-	gcc -o practica2.exe main.o funcionesInsertarDatos.o funcionesMostrarDatos.o funcionesModificarDatos.o -lnsl -lm -lz -lmysqlclient
+practica2.exe: main.o funcionesInsertarDatos.o funcionesMostrarDatos.o funcionesModificarDatos.o funcionesConsultarInfo.o
+	gcc -o practica2.exe main.o funcionesInsertarDatos.o funcionesMostrarDatos.o funcionesModificarDatos.o funcionesConsultarInfo.o -lnsl -lm -lz -lmysqlclient
+
+funcionesConsultarInfo.o: funcionesConsultarInfo.c
+	gcc -c funcionesConsultarInfo.c
 
 funcionesModificarDatos.o: funcionesModificarDatos.c
 	gcc -c funcionesModificarDatos.c

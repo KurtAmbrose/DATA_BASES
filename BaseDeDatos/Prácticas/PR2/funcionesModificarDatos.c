@@ -55,7 +55,10 @@
 
 /**
  * @brief Procedimiento que borra una colonia cuando el usuario que usa el programa lo confirme 3 veces
- * 
+ * @param String: buffer[]
+ * @param Struct: mysql
+ * @author Diego Bravo Pérez y Javier Lachica y Sánchez
+ * @date 16/11/2023
 */
 
 void borrarSiniestro(char buffer[], MYSQL mysql)

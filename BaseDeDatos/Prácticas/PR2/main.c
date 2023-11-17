@@ -27,7 +27,7 @@
  *
  * @date Fecha de elaboración del programa: 2 de Noviembre del 2023
  *
- * @date Última Actualización: 16 de Noviembre del 2023
+ * @date Última Actualización: 17 de Noviembre del 2023
  *
  */
 
@@ -111,12 +111,12 @@ int main(int argc, char *argv[])
 
           case 'c':
           system("clear");
-          
+          menuConsultarInfo(mysql);
           break;
 
           case 'C':
           system("clear");
-          
+          menuConsultarInfo(mysql);
           break;
 
           case 'D':

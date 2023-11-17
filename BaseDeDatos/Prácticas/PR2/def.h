@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdio_ext.h>
 #include <string.h>
 #include <stdlib.h>
 #include <mysql/mysql.h>
@@ -100,3 +101,17 @@ void borrarLlamada(char buffer[], MYSQL mysql);
 void modificarSiniestro(char buffer[], MYSQL mysql);
 void mostrarTiempoPasoaPaso(char buffer[], MYSQL mysql, int *ver, int num_args, ...);
 void borrarSiniestro(char buffer[], MYSQL mysql);
+
+// Funciones del archivo funcionesConsultarInfo.c
+extern void menuConsultarInfo(MYSQL mysql);
+void mostrarUsuariosMenosUsan(char buffer[], MYSQL mysql);
+void mostrarAjustadoresMasSiniestrosAtienden(char buffer[], MYSQL mysql);
+void mostrarAjustadoresMenosSiniestrosAtienden(char buffer[], MYSQL mysql);
+void mostrarSiniestrosDeUnAjustador(char buffer[], MYSQL mysql);
+void mostrarListaDeAjustadoresManejaronVehiculoEnUnTiempo(char buffer[], MYSQL mysql);
+void mostrarColoniasDondeMasSiniestrosPasan(char buffer[], MYSQL mysql);
+void mostrarPeriodoDiaDondeMasSiniestrosPasan(char buffer[], MYSQL mysql);
+void mostrarCantidadDeSiniestrosEnTiempo(char buffer[], MYSQL mysql);
+void mostrarAjustadoresManejaronUnVehiculoEnTiempoFijo(char buffer[], MYSQL mysql);
+void mostrarUltimaPosicionDeAjustador(char buffer[], MYSQL mysql);
+void mostrarListaVehiculosManejoAjustadorEnTiempoFijo(char buffer[], MYSQL mysql);
