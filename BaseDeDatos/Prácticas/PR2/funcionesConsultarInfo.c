@@ -564,7 +564,7 @@ void mostrarSiniestrosDeUnAjustador(char buffer[], MYSQL mysql)
     }
 
     // Despliega el resultado del query
-    printf("---LISTA DE SINIESTROS DEL AJUSTADOR: %s----\n\n", ajustador);
+    printf("----LISTA DE SINIESTROS DEL AJUSTADOR: %s----\n\n", ajustador);
     while( (row = mysql_fetch_row(res)) )
     {
         i = 0;
